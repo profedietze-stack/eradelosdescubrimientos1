@@ -25,6 +25,7 @@ import { prepararCaptura, cerrarCaptura, verSnapshot } from './ui/captureUI.js';
 import './tools/tooltipSystem.js';
 import './debug/errorCapture.js';
 import { toggle as toggleDebug } from './debug/debugConsole.js';
+import { initErrorBanner, toggleErrorPanel, limpiarErrores } from './debug/errorBanner.js';
 
 window.iniciarJuego = iniciarJuego;
 window.cargarPartida = cargarPartida;
@@ -56,8 +57,11 @@ window.__secuenciaActual = secuenciaActual;
 window.prepararCaptura = prepararCaptura;
 window.cerrarCaptura = cerrarCaptura;
 window.verSnapshot = verSnapshot;
+window._toggleErrorPanel = toggleErrorPanel;
+window._limpiarErrores = limpiarErrores;
 
 window.onload = () => {
+    initErrorBanner();
     let lastTap = 0;
     document.addEventListener('touchend', e => {
         const now = Date.now();
