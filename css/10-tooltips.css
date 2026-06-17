@@ -1,0 +1,17 @@
+        /* ===== TOOLTIPS HISTÓRICOS ===== */
+        .tooltip-term {
+            border-bottom: 1px dashed var(--brown-muted);
+            cursor: help;
+            color: inherit;
+            display: inline;
+        }
+        /* #word-tooltip y #stat-tooltip son posicionados y estilados 100% por JS */
+        #word-tooltip, #stat-tooltip {
+            position: fixed;
+            z-index: 999999;
+            pointer-events: none;
+            display: block;
+            visibility: hidden;
+            opacity: 0;
+            transition: opacity 0.14s ease;
+        }

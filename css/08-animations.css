@@ -1,0 +1,63 @@
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(14px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        /* Animación del panel de evento al cambiar — efecto cuaderno de bitácora */
+        @keyframes paginaEntra {
+            from { opacity: 0; transform: translateX(28px) skewX(-1deg); filter: brightness(0.92); }
+            to   { opacity: 1; transform: translateX(0) skewX(0deg);     filter: brightness(1); }
+        }
+        @keyframes paginaSale {
+            from { opacity: 1; transform: translateX(0) skewX(0deg);      filter: brightness(1); }
+            to   { opacity: 0; transform: translateX(-24px) skewX(1deg);  filter: brightness(0.88); }
+        }
+        @keyframes pulso-peligro {
+            0%, 100% { opacity: 1; }
+            50%       { opacity: 0.55; }
+        }
+        @keyframes delta-float {
+            0%   { opacity: 0; transform: translateY(0); }
+            15%  { opacity: 1; }
+            80%  { opacity: 1; transform: translateY(-22px); }
+            100% { opacity: 0; transform: translateY(-28px); }
+        }
+        @keyframes score-pop {
+            0%   { transform: scale(0.55); opacity: 0; }
+            70%  { transform: scale(1.1); }
+            100% { transform: scale(1);   opacity: 1; }
+        }
+        @keyframes compass-slow {
+            from { transform: rotate(0deg); }
+            to   { transform: rotate(360deg); }
+        }
+        @keyframes hitoFadeIn {
+            0%   { background: rgba(5,15,30,0.0); }
+            40%  { background: rgba(5,15,30,0.92); }
+            100% { background: rgba(5,15,30,0.88); }
+        }
+        @keyframes hitoGlow {
+            0%,100% { opacity: 0.6; }
+            50%      { opacity: 1.0; }
+        }
+        @keyframes hitoBadgePulse {
+            0%,100% { box-shadow: 0 2px 12px rgba(200,150,12,0.4); }
+            50%      { box-shadow: 0 2px 22px rgba(200,150,12,0.75); }
+        }
+        @keyframes hitoItemIn {
+            from { opacity: 0; transform: translateY(12px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes hitoTituloIn {
+            from { opacity: 0; transform: scale(0.88) translateY(10px); }
+            to   { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        @keyframes pulso-alerta {
+            0%,100% { box-shadow: 0 0 14px rgba(192,57,43,0.35); }
+            50%      { box-shadow: 0 0 28px rgba(192,57,43,0.6); }
+        }
+        @keyframes captura-spin {
+            to { transform: rotate(360deg); }
+        }
+        @keyframes captura-spin {
+            to { transform: rotate(360deg); }
+        }

@@ -1,0 +1,38 @@
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html { scroll-behavior: smooth; overflow-x: hidden; }
+
+        /* ===== FONDO PERGAMINO ENVEJECIDO ===== */
+        body {
+            font-family: var(--font-body);
+            background-color: #d4b878;
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='500' height='500'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0.15'/%3E%3CfeBlend in='SourceGraphic' mode='multiply'/%3E%3C/filter%3E%3Crect width='500' height='500' filter='url(%23n)' opacity='0.15'/%3E%3C/svg%3E"),
+                radial-gradient(ellipse 100% 100% at 50% 50%, transparent 35%, rgba(40,24,10,0.22) 100%),
+                radial-gradient(ellipse 120% 50% at 10% 5%, rgba(255,252,235,0.7) 0%, transparent 55%),
+                radial-gradient(ellipse 80% 60% at 90% 95%, rgba(180,130,50,0.35) 0%, transparent 55%),
+                linear-gradient(150deg, #f9f0d8 0%, #f0dfa8 40%, #dfc070 75%, #c8a040 100%);
+            background-size: 500px 500px, cover, cover, cover, cover;
+            /* background-attachment: fixed ROTO en iOS Safari — usar scroll */
+            background-attachment: scroll;
+            color: var(--ink);
+            line-height: 1.65;
+            overflow-x: hidden;
+            /* Fallback vh para browsers sin soporte dvh */
+            min-height: 100vh;
+            min-height: 100dvh;
+            padding-left: env(safe-area-inset-left, 0px);
+            padding-right: env(safe-area-inset-right, 0px);
+            padding-bottom: env(safe-area-inset-bottom, 0px);
+            /* Evitar selección accidental en touch */
+            -webkit-user-select: none;
+            user-select: none;
+        }
+        /* Permitir selección solo en texto de contenido */
+        .event-text, .info-content, .briefing-body, .end-content, .bitacora-entrada {
+            -webkit-user-select: text;
+            user-select: text;
+        }
+
+        /* ===== FOCUS VISIBLE (accesibilidad) ===== */
+        :focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }

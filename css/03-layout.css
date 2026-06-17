@@ -1,0 +1,65 @@
+        .container {
+            max-width: 1300px;
+            margin: 0 auto;
+            padding: clamp(10px, 3vw, 20px);
+        }
+
+        /* ===== TRANSICIÓN ENTRE PANTALLAS ===== */
+        .screen { display: none !important; }
+        .screen.active { display: block !important; animation: fadeIn 0.45s ease; }
+        /* Start-screen necesita flex para su layout de dos columnas */
+        #start-screen.active { display: flex !important; flex-direction: column; align-items: center; }
+
+        /* ── GAME SCREEN CONTAINER ── */
+        #game-screen > .container {
+            max-width: 1400px;
+            padding: clamp(8px, 2vw, 16px);
+        }
+
+        /* ── GAME LAYOUT: mapa arriba, stats, evento abajo ── */
+        .game-layout {
+            display: grid;
+            grid-template-rows: auto;
+            gap: clamp(10px, 2vw, 18px);
+        }
+
+        /* ── SCROLL SUAVE EN MOBILE ── */
+        @media (max-width: 699px) {
+            .map-header-bar { font-size: clamp(0.65rem, 3vw, 0.78rem); padding: 4px 10px; }
+            #game-screen .container { padding: 8px; }
+        }
+
+        /* ===== LOADING SCREEN ===== */
+        #loading-screen {
+            position: fixed; inset: 0; z-index: 9999999;
+            display: flex; align-items: center; justify-content: center;
+            background: linear-gradient(160deg, #0d2d4f 0%, #1a4020 60%, #2a5f8a 100%);
+            transition: opacity 0.5s ease;
+        }
+        #loading-screen.loaded { opacity: 0; pointer-events: none; }
+        .loading-content { text-align: center; }
+        .loading-icon { font-size: 3.5rem; margin-bottom: 16px; animation: float-icon 2s ease-in-out infinite; }
+        .loading-spinner {
+            width: 48px; height: 48px; margin: 0 auto 16px;
+            border: 4px solid rgba(255,255,255,0.15);
+            border-top-color: #f5c842;
+            border-radius: 50%;
+            animation: spin 0.9s linear infinite;
+        }
+        .loading-text { font-family: 'MedievalSharp', serif; font-size: 1.3rem; color: #f5e6c8; margin-bottom: 6px; }
+        .loading-sub  { font-family: Georgia, serif; font-size: 0.85rem; color: rgba(245,230,200,0.55); }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes float-icon {
+            0%, 100% { transform: translateY(0); }
+            50%      { transform: translateY(-12px); }
+        }
+
+        /* ===== CSS CONTAIN para paneles grandes ===== */
+        .end-content,
+        #game-panel,
+        #start-screen .start-body,
+        .colon-panel,
+        .ls-panel {
+            contain: content;
+        }

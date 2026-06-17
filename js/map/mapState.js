@@ -1,0 +1,23 @@
+export const _mapState = {
+    svg: null,
+    g: null,
+    projection: null,
+    path: null,
+    zoom: null,
+    ready: false,
+    canvas: null,
+    canvasCtx: null,
+    lineGen: null,
+    trailPath: null,
+    anim: {
+        active: false,
+        fromIdx: 0,
+        toIdx: 0,
+        start: 0,
+        duration: 2400,
+        rafId: null,
+        onDone: null,
+    },
+    bobbingRaf: null,
+    bobbingActive: false,
+};

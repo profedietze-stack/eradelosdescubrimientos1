@@ -1,0 +1,942 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#8b4513">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Era Descubrimientos">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    <link rel="manifest" href="./manifest.webmanifest">
+    <link rel="icon" type="image/svg+xml" href="./img/icon-192.svg">
+    <link rel="apple-touch-icon" href="./img/icon-192.svg">
+    <title>La Era de los Descubrimientos: El viaje de Cristóbal Colón</title>
+    <link rel="stylesheet" href="css/01-variables.css">
+    <link rel="stylesheet" href="css/02-reset.css">
+    <link rel="stylesheet" href="css/03-layout.css">
+    <link rel="stylesheet" href="css/04-components.css">
+    <link rel="stylesheet" href="css/05-screens.css">
+    <link rel="stylesheet" href="css/06-modals.css">
+    <link rel="stylesheet" href="css/07-map.css">
+    <link rel="stylesheet" href="css/08-animations.css">
+    <link rel="stylesheet" href="css/09-responsive.css">
+    <link rel="stylesheet" href="css/10-tooltips.css">
+</head>
+<body>
+
+<!-- ==================== PANTALLA DE CARGA ==================== -->
+<div id="loading-screen">
+    <div class="loading-content">
+        <div class="loading-icon">⛵</div>
+        <div class="loading-spinner"></div>
+        <div class="loading-text">Cargando la travesía...</div>
+        <div class="loading-sub">Preparando velas y aparejos</div>
+    </div>
+</div>
+
+<!-- Tooltip global para términos históricos — posicionado por JS, nunca se corta -->
+<div id="word-tooltip"></div>
+<!-- Tooltip global para stats — posicionado por JS -->
+<div id="stat-tooltip"></div>
+
+<!-- ==================== OVERLAY HITO HISTÓRICO ==================== -->
+<div id="hito-overlay">
+    <div class="hito-eyebrow">✦ &nbsp; Hito Histórico &nbsp; ✦</div>
+    <div class="hito-fecha">12 de octubre de 1492</div>
+    <div class="hito-titulo">Primer Desembarco<br>en el Nuevo Mundo</div>
+    <div class="hito-subtitulo">Las carabelas tocan tierra americana.<br>El mundo nunca volverá a ser el mismo.</div>
+    <div class="hito-cita">
+        «Llegué a tierra y vi muchos árboles muy verdes y aguas muchas y frutas de diversas maneras.»
+        <cite>— Diario de Cristóbal Colón, 12 de octubre de 1492</cite>
+    </div>
+    <div class="hito-premio" id="hito-premio-texto">🍖 +<span id="hito-suministros-ganados">0</span> Suministros — las tierras americanas reponen las reservas de la flota</div>
+    <button class="hito-btn" onclick="cerrarHitoOverlay()">⚓ Desembarcar</button>
+</div>
+
+<!-- Toast de notificación -->
+<div id="toast"></div>
+
+<!-- Modal de confirmación -->
+<div id="confirm-modal" style="display:none;position:fixed;inset:0;z-index:99999;background:rgba(30,20,10,0.72);align-items:center;justify-content:center;" onclick="if(event.target===this)this.style.display='none'">
+    <div style="background:var(--parchment);border:5px solid var(--brown);border-radius:16px;padding:clamp(20px,4vw,36px) clamp(24px,5vw,48px);max-width:420px;width:90%;text-align:center;box-shadow:0 12px 40px rgba(0,0,0,0.5);font-family:var(--font-body);">
+        <p id="confirm-msg" style="font-size:clamp(1rem,2.5vw,1.25rem);margin-bottom:22px;line-height:1.5;color:var(--ink);"></p>
+        <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+            <button id="confirm-yes" class="btn-menu" style="margin:0;padding:10px 28px;font-size:1rem;">⚓ Sí, reiniciar</button>
+            <button id="confirm-no"  class="btn-menu" style="margin:0;padding:10px 28px;font-size:1rem;background:var(--ink);color:var(--parchment-light);border-color:var(--ink-soft);">✖ Cancelar</button>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== MODAL LOGROS & STATS ==================== -->
+<div id="logros-modal" onclick="if(event.target===this)cerrarLogrosStats()">
+    <div class="ls-panel">
+        <div class="ls-header">
+            <div class="ls-header-left">
+                <h2>⚓ Logros &amp; Estadísticas</h2>
+                <p id="ls-nombre-header">Marinero anónimo — Flota de Cristóbal Colón</p>
+            </div>
+            <button class="ls-close-btn" onclick="cerrarLogrosStats()" title="Cerrar">✕</button>
+        </div>
+
+        <!-- Tabs -->
+        <div class="ls-tabs">
+            <button class="ls-tab activo" data-tab="overview" onclick="lsTab('overview')">📊 Resumen</button>
+            <button class="ls-tab" data-tab="logros" onclick="lsTab('logros')">🏆 Logros</button>
+            <button class="ls-tab" data-tab="historial" onclick="lsTab('historial')">📜 Historial</button>
+            <button class="ls-tab" data-tab="rendimiento" onclick="lsTab('rendimiento')">📈 Rendimiento</button>
+        </div>
+
+        <div class="ls-body">
+
+            <!-- TAB: Resumen general -->
+            <div id="ls-tab-overview" class="ls-tab-content activo">
+                <div class="ls-overview-grid" id="ls-cards-container"></div>
+                <div class="ls-section-title">Estadísticas de campaña</div>
+                <div id="ls-bars-container"></div>
+                <div class="ls-section-title">Última partida</div>
+                <div id="ls-ultima-partida" style="font-family:var(--font-body);font-size:clamp(0.82rem,1.6vw,0.97rem);line-height:1.7;color:var(--ink-soft);"></div>
+            </div>
+
+            <!-- TAB: Logros -->
+            <div id="ls-tab-logros" class="ls-tab-content">
+                <div id="ls-logros-resumen" style="margin-bottom:14px;font-family:var(--font-body);font-size:clamp(0.82rem,1.6vw,0.97rem);color:var(--ink-soft);"></div>
+                <div id="ls-logros-grid" class="ls-logros-grid"></div>
+            </div>
+
+            <!-- TAB: Historial -->
+            <div id="ls-tab-historial" class="ls-tab-content">
+                <!-- Pantallas finales guardadas -->
+                <div id="ls-pantallas-section" style="margin-bottom:18px;">
+                    <div class="ls-section-title" style="margin-bottom:10px;">📸 Últimas partidas guardadas <span style="font-size:0.7em;opacity:0.6;font-weight:400;">(máx. 5)</span></div>
+                    <div id="ls-pantallas-grid"></div>
+                </div>
+                <div class="ls-section-title" style="margin-bottom:10px;">📋 Historial completo</div>
+                <div id="ls-historial-container"></div>
+            </div>
+
+            <!-- TAB: Rendimiento pedagógico -->
+            <div id="ls-tab-rendimiento" class="ls-tab-content">
+                <div id="ls-rendimiento-container"></div>
+            </div>
+
+        </div>
+
+        <div class="ls-footer">
+            <button class="btn-menu" onclick="cerrarLogrosStats()" style="margin:0;padding:10px 28px;font-size:0.95rem;">✖ Cerrar</button>
+            <button class="btn-menu" onclick="resetearStats()" style="margin:0;padding:10px 28px;font-size:0.95rem;background:rgba(100,20,20,0.08);color:var(--crimson);border-color:var(--crimson);">🗑 Borrar historial</button>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== MODAL DE BRIEFING ==================== -->
+<div id="briefing-modal" onclick="if(event.target===this)this.classList.remove('visible')">
+    <div class="briefing-panel">
+
+        <div class="briefing-header">
+            <span class="briefing-sello">⚓</span>
+            <h2>Orden de Mando — Flota de Colón</h2>
+            <p>3 de agosto de 1492 · Puerto de Palos de la Frontera, España</p>
+        </div>
+
+        <div class="briefing-body">
+
+            <!-- Quién sos -->
+            <div class="briefing-section">
+                <div class="briefing-section-title">🧭 Tu identidad</div>
+                <p>Eres el <strong>Primer Oficial de la Flota</strong> al mando de Cristóbal Colón. Has navegado el Mediterráneo y las costas africanas, y fuiste elegido personalmente por el Almirante por tu experiencia, temple y lealtad a la Corona de Castilla.</p>
+                <p style="margin-top:8px;">Tu nombre no figura en los libros de historia — pero sin ti, el viaje nunca habría llegado a destino.</p>
+            </div>
+
+            <!-- Misión -->
+            <div class="briefing-section">
+                <div class="briefing-section-title">📜 Tu misión</div>
+                <p>Guiar la expedición de tres carabelas — <em>la Santa María, la Pinta y la Niña</em> — desde Palos hasta las Indias Occidentales. Deberás atravesar <strong>40 eventos históricos</strong> tomando decisiones que afectarán la suerte de más de 90 hombres y el destino del mundo conocido.</p>
+                <p style="margin-top:8px;">Cada decisión que tomes quedará registrada en tu <strong>Bitácora de Mando</strong> y determinará el final de la expedición.</p>
+            </div>
+
+            <!-- Variables -->
+            <div class="briefing-section">
+                <div class="briefing-section-title">📊 Variables que deberás gestionar</div>
+                <div class="briefing-stats-preview">
+                    <div class="briefing-stat">
+                        <div class="briefing-stat-icon">⚔️</div>
+                        <div class="briefing-stat-info">
+                            <span class="briefing-stat-name">Moral de la Tripulación</span>
+                            <span class="briefing-stat-desc">Si cae a cero, el motín es inevitable</span>
+                        </div>
+                    </div>
+                    <div class="briefing-stat">
+                        <div class="briefing-stat-icon">🍖</div>
+                        <div class="briefing-stat-info">
+                            <span class="briefing-stat-name">Suministros</span>
+                            <span class="briefing-stat-desc">Sin agua y alimento no hay expedición</span>
+                        </div>
+                    </div>
+                    <div class="briefing-stat">
+                        <div class="briefing-stat-icon">🛡️</div>
+                        <div class="briefing-stat-info">
+                            <span class="briefing-stat-name">Integridad de los Navíos</span>
+                            <span class="briefing-stat-desc">Un casco dañado no llega a puerto</span>
+                        </div>
+                    </div>
+                    <div class="briefing-stat">
+                        <div class="briefing-stat-icon">👑</div>
+                        <div class="briefing-stat-info">
+                            <span class="briefing-stat-name">Autoridad Oficial</span>
+                            <span class="briefing-stat-desc">Se erosiona con cada día en alta mar</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cómo se juega -->
+            <div class="briefing-section">
+                <div class="briefing-section-title">🎮 Cómo se juega</div>
+                <ul>
+                    <li>Se presentan eventos históricos con contexto narrativo en primera persona.</li>
+                    <li>Elegí una de las opciones disponibles (A, B o C) según tu criterio.</li>
+                    <li>Cada decisión modifica las cuatro variables — los efectos se muestran al instante.</li>
+                    <li>Si alguna variable llega a niveles críticos, la expedición fracasa prematuramente.</li>
+                    <li>Al finalizar, recibirás un perfil de liderazgo y logros desbloqueados.</li>
+                </ul>
+            </div>
+
+            <!-- Consejos -->
+            <div class="briefing-section">
+                <div class="briefing-section-title">💡 Consejos del Almirante</div>
+                <div class="briefing-consejos">
+                    <ul>
+                        <li>La moral de la tripulación es tan vital como el viento en las velas — descuidarla es fatal.</li>
+                        <li>Los castigos crueles pueden restaurar la autoridad, pero destruyen el alma del equipo.</li>
+                        <li>En los momentos críticos, confía en los instrumentos científicos: la ballestilla no miente.</li>
+                        <li>La autoridad se desgasta sola con el paso del tiempo en alta mar — compensá con decisiones firmes pero justas.</li>
+                        <li>Los suministros nunca sobran: racioná con anticipación, no en la desesperación.</li>
+                    </ul>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="briefing-footer">
+
+            <!-- Input nombre del marinero -->
+            <div class="nombre-seccion">
+                <label class="nombre-label" for="nombre-marinero">✍️ ¿Cómo te llamas, marinero?</label>
+                <div class="nombre-input-row">
+                    <input
+                        type="text"
+                        id="nombre-marinero"
+                        maxlength="32"
+                        placeholder="Escribe tu nombre o elige uno..."
+                        autocomplete="off"
+                        spellcheck="false"
+                    >
+                    <button class="btn-nombre-random" onclick="nombreAleatorio()" title="Nombre aleatorio de la tripulación">🎲 Aleatorio</button>
+                </div>
+                <p class="nombre-sugerencias">
+                    Tripulantes históricos:
+                    <span onclick="elegirNombre('Rodrigo de Triana')">Rodrigo de Triana</span> ·
+                    <span onclick="elegirNombre('Juan de la Cosa')">Juan de la Cosa</span> ·
+                    <span onclick="elegirNombre('Diego de Arana')">Diego de Arana</span> ·
+                    <span onclick="elegirNombre('Pedro Alonso Niño')">Pedro Alonso Niño</span> ·
+                    <span onclick="elegirNombre('Luis de Torres')">Luis de Torres</span>
+                </p>
+            </div>
+
+            <p>«El mar es el libro de Dios. Solo quien lo lee con paciencia descubre sus secretos.»<br>— Cristóbal Colón</p>
+
+            <!-- Selector de dificultad -->
+            <div style="margin-bottom: clamp(12px,2vw,18px);">
+                <div style="font-family:var(--font-header);font-weight:700;font-size:clamp(0.72rem,1.4vw,0.85rem);letter-spacing:0.08em;text-transform:uppercase;color:var(--brown-dark);margin-bottom:7px;">⚙️ Dificultad</div>
+                <div class="dificultad-row">
+                    <button class="dif-btn activo" data-dif="estudiante" onclick="seleccionarDificultad('estudiante',this)">🎓 Estudiante</button>
+                    <button class="dif-btn" data-dif="historiador" onclick="seleccionarDificultad('historiador',this)">📜 Historiador</button>
+                    <button class="dif-btn" data-dif="almirante" onclick="seleccionarDificultad('almirante',this)">⚓ Almirante</button>
+                </div>
+                <div class="dif-desc" id="dif-desc-text">Valores iniciales altos · efectos negativos reducidos al 70% · ideal para primera partida</div>
+            </div>
+
+            <button id="briefing-btn-iniciar" class="btn-menu" style="font-size:clamp(1rem,2.5vw,1.3rem);padding:14px 48px;">
+                🚢 Iniciar nueva expedición
+            </button>
+        </div>
+
+    </div>
+</div>
+
+<!-- ==================== PANTALLA DE INICIO ==================== -->
+<div id="start-screen" class="screen active">
+
+    <!-- HEADER -->
+    <div class="start-header">
+        <span class="start-eyebrow">Corona de Castilla · Anno Domini 1492</span>
+        <h1 class="start-title">La Era de los<br>Descubrimientos</h1>
+        <p class="start-subtitle">El viaje de Cristóbal Colón</p>
+        <div class="start-rule">⚓ &nbsp; ✦ &nbsp; ⚓</div>
+    </div>
+
+    <!-- CUERPO: imagen izquierda + menú derecha -->
+    <div class="start-body">
+
+        <!-- COLUMNA IZQUIERDA: imagen enmarcada + stickers -->
+        <div class="start-col-img">
+            <div class="start-img-frame">
+                <img class="start-screen-img"
+                     src="./img/start-screen-bg.jpg"
+                     alt="Las tres carabelas" loading="eager" decoding="async"
+                     onerror="this.style.display='none';this.parentElement.style.background='linear-gradient(160deg,#2a5f8a 0%,#0d2d4f 60%,#1a4020 100%)';this.parentElement.innerHTML+='<div style=\'display:flex;align-items:center;justify-content:center;height:200px;font-size:4rem;\'>⛵</div>'">
+            </div>
+
+            <!-- STICKERS DE INSTRUMENTOS NÁUTICOS -->
+            <div class="stickers-row">
+
+                <!-- ASTROLABIO -->
+                <div class="sticker" title="Astrolabio — instrumento de cobre para medir el ángulo del sol sobre el horizonte y calcular la latitud. Herramienta clave del siglo XV.">
+                    <div class="sticker-tooltip">⚙️ <strong>Astrolabio</strong><br>Instrumento de cobre que mide el ángulo del sol sobre el horizonte para calcular la latitud. Herramienta clave del siglo XV.</div>
+                    <svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <radialGradient id="bg-ast" cx="45%" cy="38%">
+                                <stop offset="0%" stop-color="#f5c842"/>
+                                <stop offset="60%" stop-color="#c89010"/>
+                                <stop offset="100%" stop-color="#8a5e08"/>
+                            </radialGradient>
+                        </defs>
+                        <!-- Aro exterior -->
+                        <circle cx="40" cy="42" r="30" fill="url(#bg-ast)" stroke="#5c3a08" stroke-width="2.5"/>
+                        <circle cx="40" cy="42" r="26" fill="none" stroke="#f8d060" stroke-width="1.2" opacity="0.6"/>
+                        <!-- Graduaciones -->
+                        <g stroke="#5c3a08" stroke-width="1.2">
+                            <line x1="40" y1="13" x2="40" y2="17"/>
+                            <line x1="40" y1="67" x2="40" y2="71"/>
+                            <line x1="11" y1="42" x2="15" y2="42"/>
+                            <line x1="65" y1="42" x2="69" y2="42"/>
+                            <line x1="19.4" y1="21.4" x2="22.4" y2="24.4"/>
+                            <line x1="57.6" y1="59.6" x2="60.6" y2="62.6"/>
+                            <line x1="60.6" y1="21.4" x2="57.6" y2="24.4"/>
+                            <line x1="22.4" y1="59.6" x2="19.4" y2="62.6"/>
+                        </g>
+                        <!-- Disco interior -->
+                        <circle cx="40" cy="42" r="16" fill="#c89010" stroke="#5c3a08" stroke-width="1.5"/>
+                        <circle cx="40" cy="42" r="11" fill="#f5c842" stroke="#8a5e08" stroke-width="1"/>
+                        <!-- Alidade (regla giratoria) -->
+                        <line x1="40" y1="15" x2="40" y2="69" stroke="#3d1f08" stroke-width="2" stroke-linecap="round"/>
+                        <line x1="13" y1="42" x2="67" y2="42" stroke="#3d1f08" stroke-width="2" stroke-linecap="round"/>
+                        <!-- Centro -->
+                        <circle cx="40" cy="42" r="3.5" fill="#3d1f08"/>
+                        <circle cx="40" cy="42" r="1.5" fill="#f8d060"/>
+                        <!-- Anilla superior -->
+                        <ellipse cx="40" cy="10" rx="5" ry="3.5" fill="none" stroke="#5c3a08" stroke-width="2.2"/>
+                        <line x1="40" y1="12" x2="40" y2="14" stroke="#5c3a08" stroke-width="2"/>
+                    </svg>
+                    <span class="sticker-label">Astrolabio</span>
+                </div>
+
+                <!-- BRÚJULA -->
+                <div class="sticker" title="Brújula — aguja imantada que señala el norte magnético. Los navegantes del siglo XV notaban su declinación magnética respecto al norte verdadero.">
+                    <div class="sticker-tooltip">🧭 <strong>Brújula</strong><br>Aguja imantada que señala el norte magnético. Los navegantes del XV notaban su declinación respecto al norte verdadero.</div>
+                    <svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <radialGradient id="bg-bru" cx="40%" cy="35%">
+                                <stop offset="0%" stop-color="#f0ead0"/>
+                                <stop offset="100%" stop-color="#c8a850"/>
+                            </radialGradient>
+                        </defs>
+                        <!-- Caja exterior -->
+                        <rect x="8" y="8" width="64" height="64" rx="10" fill="#6b3a10" stroke="#3d1f08" stroke-width="2"/>
+                        <rect x="11" y="11" width="58" height="58" rx="8" fill="#8b4e18" stroke="#c89010" stroke-width="1.2"/>
+                        <!-- Esfera de la brújula -->
+                        <circle cx="40" cy="40" r="24" fill="url(#bg-bru)" stroke="#5c3a08" stroke-width="1.8"/>
+                        <circle cx="40" cy="40" r="20" fill="none" stroke="#c89010" stroke-width="0.8" opacity="0.5"/>
+                        <!-- Rosa de los vientos -->
+                        <text x="40" y="20" text-anchor="middle" font-size="7" font-family="serif" font-weight="bold" fill="#5c3a08">N</text>
+                        <text x="40" y="63" text-anchor="middle" font-size="7" font-family="serif" fill="#5c3a08">S</text>
+                        <text x="62" y="43" text-anchor="middle" font-size="7" font-family="serif" fill="#5c3a08">E</text>
+                        <text x="18" y="43" text-anchor="middle" font-size="7" font-family="serif" fill="#5c3a08">O</text>
+                        <!-- Líneas cardinales -->
+                        <line x1="40" y1="22" x2="40" y2="57" stroke="#8b4e18" stroke-width="0.8" opacity="0.4"/>
+                        <line x1="22" y1="40" x2="57" y2="40" stroke="#8b4e18" stroke-width="0.8" opacity="0.4"/>
+                        <!-- Aguja: norte rojo, sur oscuro -->
+                        <polygon points="40,22 37,40 40,38 43,40" fill="#b52020"/>
+                        <polygon points="40,57 37,40 40,42 43,40" fill="#3d1f08"/>
+                        <circle cx="40" cy="40" r="3" fill="#c89010" stroke="#3d1f08" stroke-width="1"/>
+                        <circle cx="40" cy="40" r="1.2" fill="#f8d060"/>
+                    </svg>
+                    <span class="sticker-label">Brújula</span>
+                </div>
+
+                <!-- BALLESTILLA -->
+                <div class="sticker" title="Ballestilla — vara de madera en forma de cruz para medir la altura del sol y calcular la latitud. Más precisa que el cuadrante en alta mar.">
+                    <div class="sticker-tooltip">📏 <strong>Ballestilla</strong><br>Vara de madera en cruz para medir la altura del sol o las estrellas. Más precisa que el cuadrante en alta mar.</div>
+                    <svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+                        <!-- Palo principal (horizontal) -->
+                        <rect x="6" y="37.5" width="68" height="5" rx="2.5" fill="#8b5e28" stroke="#5c3a08" stroke-width="1.2"/>
+                        <!-- Graduaciones en el palo -->
+                        <g stroke="#3d1f08" stroke-width="1.1">
+                            <line x1="18" y1="35" x2="18" y2="38"/><line x1="28" y1="35" x2="28" y2="38"/>
+                            <line x1="38" y1="34" x2="38" y2="38"/><line x1="48" y1="35" x2="48" y2="38"/>
+                            <line x1="58" y1="35" x2="58" y2="38"/>
+                            <line x1="18" y1="42" x2="18" y2="45"/><line x1="28" y1="42" x2="28" y2="45"/>
+                            <line x1="38" y1="42" x2="38" y2="46"/><line x1="48" y1="42" x2="48" y2="45"/>
+                            <line x1="58" y1="42" x2="58" y2="45"/>
+                        </g>
+                        <!-- Transversal (vertical, la "ballesta") -->
+                        <rect x="35.5" y="12" width="5" height="56" rx="2.5" fill="#c89010" stroke="#8a5e08" stroke-width="1.2"/>
+                        <!-- Botones en los extremos de la transversal -->
+                        <circle cx="38" cy="13" r="4" fill="#f5c842" stroke="#5c3a08" stroke-width="1.2"/>
+                        <circle cx="38" cy="67" r="4" fill="#f5c842" stroke="#5c3a08" stroke-width="1.2"/>
+                        <!-- Mira izquierda (ojo del observador) -->
+                        <rect x="6" y="35" width="8" height="10" rx="2" fill="#c89010" stroke="#5c3a08" stroke-width="1.2"/>
+                        <circle cx="10" cy="40" r="2.5" fill="#3d1f08"/>
+                        <circle cx="10" cy="40" r="1" fill="#f8d060"/>
+                        <!-- Detalle en el cruce -->
+                        <circle cx="38" cy="40" r="4.5" fill="#f5c842" stroke="#5c3a08" stroke-width="1.5"/>
+                        <circle cx="38" cy="40" r="1.8" fill="#8a5e08"/>
+                    </svg>
+                    <span class="sticker-label">Ballestilla</span>
+                </div>
+
+                <!-- CUADRANTE -->
+                <div class="sticker" title="Cuadrante — instrumento de cuarto de círculo para medir ángulos del sol y estrellas. Usado en navegación astronómica desde el siglo XIII.">
+                    <div class="sticker-tooltip">📐 <strong>Cuadrante</strong><br>Instrumento de cuarto de círculo para medir ángulos del sol y estrellas. Usado en navegación astronómica desde el siglo XIII.</div>
+                    <svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <radialGradient id="bg-cua" cx="20%" cy="20%">
+                                <stop offset="0%" stop-color="#f5c842"/>
+                                <stop offset="100%" stop-color="#9a7008"/>
+                            </radialGradient>
+                        </defs>
+                        <!-- Sector (1/4 de círculo) -->
+                        <path d="M 12 12 L 12 68 A 56 56 0 0 0 68 12 Z" fill="url(#bg-cua)" stroke="#5c3a08" stroke-width="2.2"/>
+                        <path d="M 16 16 L 16 64 A 48 48 0 0 0 64 16 Z" fill="none" stroke="#f8d060" stroke-width="0.8" opacity="0.5"/>
+                        <!-- Arco de graduación -->
+                        <path d="M 12 60 A 48 48 0 0 0 60 12" fill="none" stroke="#3d1f08" stroke-width="1.5"/>
+                        <!-- Marcas de grados -->
+                        <g stroke="#3d1f08" stroke-width="1.2" fill="none">
+                            <line x1="12" y1="12" x2="16" y2="14"/><line x1="12" y1="12" x2="14" y2="16"/>
+                            <line x1="32" y1="17" x2="31" y2="21"/><line x1="48" y1="26" x2="46" y2="29"/>
+                            <line x1="58" y1="40" x2="54" y2="40"/><line x1="62" y1="30" x2="58" y2="31"/>
+                        </g>
+                        <!-- Plomada colgando del vértice -->
+                        <line x1="12" y1="12" x2="44" y2="55" stroke="#3d1f08" stroke-width="1.4" stroke-dasharray="2,2"/>
+                        <circle cx="44" cy="58" r="4" fill="#c89010" stroke="#5c3a08" stroke-width="1.2"/>
+                        <!-- Punto del vértice -->
+                        <circle cx="12" cy="12" r="4.5" fill="#f5c842" stroke="#5c3a08" stroke-width="1.5"/>
+                        <circle cx="12" cy="12" r="2" fill="#3d1f08"/>
+                        <!-- Mirilla superior -->
+                        <rect x="10" y="4" width="4" height="7" rx="1.5" fill="#8b5e28" stroke="#5c3a08" stroke-width="1"/>
+                        <line x1="12" y1="5" x2="12" y2="11" stroke="#f8d060" stroke-width="0.8"/>
+                    </svg>
+                    <span class="sticker-label">Cuadrante</span>
+                </div>
+
+                <!-- ANCLA -->
+                <div class="sticker" title="Ancla — pieza de hierro que se lanza al fondo del mar para fijar el barco. Las carabelas del siglo XV llevaban varias anclas de repuesto en la bodega.">
+                    <div class="sticker-tooltip">⚓ <strong>Ancla</strong><br>Pieza de hierro lanzada al fondo del mar para fijar el barco. Las carabelas llevaban varias anclas de repuesto en la bodega.</div>
+                    <svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <linearGradient id="metal-anc" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="#a87c3a"/>
+                                <stop offset="50%" stop-color="#7a5520"/>
+                                <stop offset="100%" stop-color="#5c3a08"/>
+                            </linearGradient>
+                        </defs>
+                        <!-- Barra horizontal (cepo) -->
+                        <rect x="12" y="14" width="56" height="6" rx="3" fill="url(#metal-anc)" stroke="#3d1f08" stroke-width="1.2"/>
+                        <!-- Anillo superior -->
+                        <ellipse cx="40" cy="10" rx="7" ry="5" fill="none" stroke="#7a5520" stroke-width="3"/>
+                        <!-- Fuste vertical -->
+                        <rect x="37.5" y="19" width="5" height="38" rx="2.5" fill="url(#metal-anc)" stroke="#3d1f08" stroke-width="1"/>
+                        <!-- Cepo del ancla inferior (forma curva) -->
+                        <path d="M 40 57 Q 18 57 16 72" fill="none" stroke="url(#metal-anc)" stroke-width="5" stroke-linecap="round"/>
+                        <path d="M 40 57 Q 62 57 64 72" fill="none" stroke="url(#metal-anc)" stroke-width="5" stroke-linecap="round"/>
+                        <path d="M 40 57 Q 18 57 16 72" fill="none" stroke="#3d1f08" stroke-width="1" stroke-linecap="round"/>
+                        <path d="M 40 57 Q 62 57 64 72" fill="none" stroke="#3d1f08" stroke-width="1" stroke-linecap="round"/>
+                        <!-- Punta de la caña -->
+                        <ellipse cx="40" cy="58" rx="5" ry="3.5" fill="url(#metal-anc)" stroke="#3d1f08" stroke-width="1"/>
+                        <!-- Uñas (extremos del cepo) -->
+                        <ellipse cx="16" cy="72" rx="5" ry="3.5" fill="url(#metal-anc)" stroke="#3d1f08" stroke-width="1.2"/>
+                        <ellipse cx="64" cy="72" rx="5" ry="3.5" fill="url(#metal-anc)" stroke="#3d1f08" stroke-width="1.2"/>
+                        <!-- Cabo enrollado en el fuste -->
+                        <path d="M 37 30 Q 33 32 37 35 Q 43 37 39 40 Q 34 42 38 45" fill="none" stroke="#8b5e28" stroke-width="1.8" stroke-linecap="round"/>
+                    </svg>
+                    <span class="sticker-label">Ancla</span>
+                </div>
+
+            </div><!-- /stickers-row -->
+        </div><!-- /start-col-img -->
+
+        <!-- COLUMNA DERECHA: menú de navegación -->
+        <div class="start-col-menu">
+            <div class="start-menu-panel">
+                <div class="menu-panel-title">
+                    <span>⚜</span> Expedición al Nuevo Mundo <span>⚜</span>
+                </div>
+
+                <!-- Botón principal -->
+                <button onclick="iniciarJuego()" class="btn-nav btn-nav--primary">
+                    <span class="btn-nav-icon">⛵</span>
+                    <span class="btn-nav-text">
+                        Iniciar nueva expedición
+                        <span class="btn-nav-sub">Iniciar nueva partida</span>
+                    </span>
+                    <span class="btn-nav-arrow">›</span>
+                </button>
+
+                <button onclick="cargarPartida()" class="btn-nav">
+                    <span class="btn-nav-icon">📜</span>
+                    <span class="btn-nav-text">
+                        Cargar Partida
+                        <span class="btn-nav-sub">Retomar el viaje guardado</span>
+                    </span>
+                    <span class="btn-nav-arrow">›</span>
+                </button>
+
+                <button onclick="abrirLogrosStats()" class="btn-nav">
+                    <span class="btn-nav-icon">🏆</span>
+                    <span class="btn-nav-text">
+                        Logros &amp; Estadísticas
+                        <span class="btn-nav-sub">Registro de travesías y medallas</span>
+                    </span>
+                    <span class="btn-nav-arrow">›</span>
+                </button>
+
+                <button onclick="mostrarInfo()" class="btn-nav">
+                    <span class="btn-nav-icon">🧭</span>
+                    <span class="btn-nav-text">
+                        Guía Didáctica
+                        <span class="btn-nav-sub">Para docentes · objetivos y actividades</span>
+                    </span>
+                    <span class="btn-nav-arrow">›</span>
+                </button>
+
+                <!-- Cita -->
+                <div class="start-quote">
+                    «El mar es el libro de Dios.<br>Solo quien lo lee con paciencia descubre sus secretos.»
+                    <cite>— Cristóbal Colón, Diario de Navegación · 1492</cite>
+                </div>
+
+            </div><!-- /start-menu-panel -->
+        </div><!-- /start-col-menu -->
+
+    </div><!-- /start-body -->
+
+    <p class="start-footer">⚜ ✦ ⚜ &nbsp; Creado por <strong>ProfeD.</strong> &nbsp; · &nbsp; Simulador educativo de toma de decisiones históricas &nbsp; · &nbsp; V20 &nbsp; ⚜ ✦ ⚜</p>
+
+</div>
+
+
+<!-- ==================== PANTALLA DE JUEGO ==================== -->
+<div id="game-screen" class="screen">
+    <div class="container">
+
+        <!-- MAPA: protagonista a ancho completo -->
+        <div class="map-container" id="map-container">
+            <svg id="map-svg"></svg>
+            <canvas id="ship-canvas" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:15;"></canvas>
+            <div class="map-zoom-controls">
+                <button class="map-zoom-btn" onclick="mapZoom(1.3)" title="Acercar">+</button>
+                <button class="map-zoom-btn" onclick="mapZoom(0.77)" title="Alejar">−</button>
+                <button class="map-zoom-btn" onclick="mapReset()" title="Centrar en la flota" style="font-size:0.65rem;">⛵</button>
+                <button class="map-zoom-btn" id="btn-audio" onclick="toggleAudio()" title="Silenciar sonido" style="font-size:0.75rem;">🔊</button>
+                <button class="map-zoom-btn" id="btn-fs-toggle" onclick="togglePantallaCompleta()" title="Pantalla completa" style="display:none;font-size:0.7rem;">⛶</button>
+            </div>
+            <div class="fleet-indicator">
+                ⛵ <strong>Santa María</strong> &nbsp;·&nbsp;
+                ⛵ <strong>Pinta</strong> &nbsp;·&nbsp;
+                ⛵ <strong>Niña</strong>
+            </div>
+            <div class="progress-badge">
+                Día <span id="dia-actual">1</span>/72 &nbsp;·&nbsp; <span id="progreso-text">0%</span>
+            </div>
+        </div>
+
+        <!-- FRASE NAVEGANTE: entre mapa y stats -->
+        <div id="map-header" class="map-header-bar">
+            <span id="frase-random"></span>
+        </div>
+
+        <!-- BARRA DE STATS: 4 celdas horizontales -->
+        <div class="stats-bar" style="margin: clamp(8px,1.5vw,14px) 0;">
+            <div class="stat-cell" data-stat="moral"
+                 data-stat-tip="⚔️ MORAL — Estado emocional y cohesión de la tripulación. Un discurso motivador, comida extra o buenas noticias la suben. El miedo, el hambre, los castigos crueles y las semanas sin tierra la destruyen. Si cae a 15 o menos, la tripulación se amotina y el viaje termina.">
+                <div class="var-icon">⚔️</div>
+                <div class="var-info">
+                    <span class="var-label">Moral</span>
+                    <div class="var-bar"><div id="bar-moral" class="var-fill" style="background:#e74c3c;width:80%"></div></div>
+                </div>
+                <span id="valor-moral" class="var-value">80</span>
+            </div>
+            <div class="stat-cell" data-stat="suministros"
+                 data-stat-tip="🍖 SUMINISTROS — Agua dulce, bizcocho, carne salada, vino y aceite. Se consumen en cada evento. La lluvia, el intercambio con los taínos y el racionamiento los reponen. Si caen a 8 o menos, la tripulación muere de hambre y el viaje termina.">
+                <div class="var-icon">🍖</div>
+                <div class="var-info">
+                    <span class="var-label">Suministros</span>
+                    <div class="var-bar"><div id="bar-suministros" class="var-fill" style="background:#e8b420;width:90%"></div></div>
+                </div>
+                <span id="valor-suministros" class="var-value">90</span>
+            </div>
+            <div class="stat-cell" data-stat="integridad"
+                 data-stat-tip="🛡️ INTEGRIDAD — Estado estructural de las tres carabelas. Las tormentas, los arrecifes y el descuido la dañan. El calafateo y las reparaciones la restauran. Si cae a 12 o menos, los navíos se hunden y el viaje termina.">
+                <div class="var-icon">🛡️</div>
+                <div class="var-info">
+                    <span class="var-label">Integridad</span>
+                    <div class="var-bar"><div id="bar-integridad" class="var-fill" style="background:#3498db;width:85%"></div></div>
+                </div>
+                <span id="valor-integridad" class="var-value">85</span>
+            </div>
+            <div class="stat-cell" data-stat="autoridad"
+                 data-stat-tip="👑 AUTORIDAD — Tu poder de mando como Primer Oficial. Se erosiona automáticamente cada evento: el tiempo en alta mar desgasta el liderazgo. Las decisiones firmes la recuperan, pero los castigos crueles tienen consecuencias a largo plazo. Sin autoridad, la tripulación ignora tus órdenes.">
+                <div class="var-icon">👑</div>
+                <div class="var-info">
+                    <span class="var-label">Autoridad</span>
+                    <div class="var-bar"><div id="bar-autoridad" class="var-fill" style="background:#9b59b6;width:75%"></div></div>
+                </div>
+                <span id="valor-autoridad" class="var-value">75</span>
+            </div>
+        </div>
+
+        <!-- ALERTA DE PELIGRO (se muestra cuando una stat es crítica) -->
+        <div id="alerta-peligro"></div>
+
+        <!-- LAYOUT: evento a ancho completo -->
+        <div class="game-layout">
+            <!-- Panel de Eventos -->
+            <div class="event-container">
+                <div class="event-header">
+                    <span class="event-badge">⚓ Evento <span id="evento-numero">1</span> / 40</span>
+                    <span id="fase-viaje"><span class="fase-dot"></span><span id="fase-texto">Preparación</span></span>
+                    <button onclick="guardarPartida()" class="btn-save">💾 Guardar partida</button>
+                </div>
+                <p id="event-text" class="event-text"></p>
+                <div class="options-label">⚔️ Elige tu decisión</div>
+                <button id="btn-consultar-colon" onclick="consultarColon()" class="btn-consultar-colon" style="display:none">🧭 Consultar a Colón</button>
+                <div class="options-divider">· · · · · · · · · · · · · · · · ·</div>
+                <div id="options-container" class="options-grid"></div>
+                <!-- Panel de consecuencias post-decisión -->
+                <div id="consecuencias-panel">
+                    <div class="consecuencia-texto" id="cons-texto"></div>
+                    <div class="consecuencia-efectos" id="cons-efectos"></div>
+                    <button id="cons-btn-continuar" onclick="continuarDespuesDeConsecuencias()">▶ Continuar el viaje</button>
+                </div>
+
+                <!-- CONTROLES (dentro del scroll para que sean siempre visibles) -->
+                <div class="game-controls" style="margin-top: clamp(8px,1.5vw,14px);">
+                    <button onclick="reiniciarJuego()" class="btn-control">↩ Reiniciar viaje</button>
+                    <button onclick="confirmarVolverAlInicio()" class="btn-control">🏠 Volver al puerto</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== MODAL CONSULTAR A COLÓN ==================== -->
+<div id="colon-modal" class="colon-modal" style="display:none">
+    <div class="colon-panel">
+        <div class="colon-retrato">
+            <img src="./img/cristobal_colon.jpg" alt="Cristóbal Colón" class="colon-retrato-img" loading="lazy">
+        </div>
+        <div class="colon-speech">
+            <div class="colon-speech-header">
+                <span class="colon-name">Cristóbal Colón</span>
+                <span class="colon-title">Almirante del Mar Océano</span>
+            </div>
+            <div class="colon-speech-body">
+                <p id="colon-advice-text"></p>
+            </div>
+            <button onclick="cerrarConsultarColon()" class="colon-btn">Volver a la decisión</button>
+        </div>
+        <button onclick="cerrarConsultarColon()" class="colon-close">&times;</button>
+    </div>
+</div>
+
+<div id="crew-modal" class="crew-modal" style="display:none">
+    <div class="crew-panel">
+        <div class="crew-retrato">
+            <img src="./img/tripulantes.jpg" alt="Tripulantes" class="crew-retrato-img" loading="lazy">
+        </div>
+        <div class="crew-speech">
+            <div class="crew-speech-header">
+                <span class="crew-name">La tripulaci&oacute;n quiere hablar contigo</span>
+                <span class="crew-title">Voces desde la cubierta</span>
+            </div>
+            <div class="crew-speech-body">
+                <p id="crew-advice-text"></p>
+            </div>
+            <button onclick="cerrarTripulacionModal()" class="crew-btn">Continuar</button>
+        </div>
+        <button onclick="cerrarTripulacionModal()" class="crew-close">&times;</button>
+    </div>
+</div>
+
+<!-- ==================== PANTALLA INFO DIDÁCTICA ==================== -->
+<div id="info-screen" class="screen">
+    <div class="container" style="padding-top: clamp(14px, 3vw, 26px); padding-bottom: clamp(20px, 4vw, 40px);">
+        <div class="info-content">
+
+            <!-- ENCABEZADO -->
+            <h2>🧭 Guía Didáctica del Simulador</h2>
+            <p style="text-align:center; font-style:italic; color:var(--brown); margin-top:-10px; margin-bottom: clamp(18px,3vw,30px); font-size:clamp(0.88rem,1.9vw,1.05rem);">
+                «La Era de los Descubrimientos: El viaje de Cristóbal Colón» · Simulador educativo de toma de decisiones históricas · <strong>ProfeD.</strong>
+            </p>
+
+            <!-- BLOQUE: FICHA TÉCNICA -->
+            <div style="background:linear-gradient(135deg,rgba(139,69,19,0.08),rgba(200,150,12,0.06)); border:2px solid rgba(139,69,19,0.25); border-radius:12px; padding:clamp(14px,2.5vw,24px); margin-bottom:clamp(16px,3vw,28px);">
+                <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:12px; font-family:var(--font-body); font-size:clamp(0.85rem,1.8vw,1rem);">
+                    <div><span style="font-family:var(--font-header);font-weight:700;color:var(--brown-dark);display:block;font-size:0.78em;letter-spacing:0.06em;text-transform:uppercase;margin-bottom:3px;">📚 Materia</span>Historia · Ciencias Sociales</div>
+                    <div><span style="font-family:var(--font-header);font-weight:700;color:var(--brown-dark);display:block;font-size:0.78em;letter-spacing:0.06em;text-transform:uppercase;margin-bottom:3px;">🎓 Nivel</span>Secundaria (3.° a 5.° año)</div>
+                    <div><span style="font-family:var(--font-header);font-weight:700;color:var(--brown-dark);display:block;font-size:0.78em;letter-spacing:0.06em;text-transform:uppercase;margin-bottom:3px;">⏱ Duración</span>45 – 90 minutos</div>
+                    <div><span style="font-family:var(--font-header);font-weight:700;color:var(--brown-dark);display:block;font-size:0.78em;letter-spacing:0.06em;text-transform:uppercase;margin-bottom:3px;">👥 Modalidad</span>Individual o grupal</div>
+                    <div><span style="font-family:var(--font-header);font-weight:700;color:var(--brown-dark);display:block;font-size:0.78em;letter-spacing:0.06em;text-transform:uppercase;margin-bottom:3px;">📱 Dispositivos</span>Celular, tablet, PC</div>
+                    <div><span style="font-family:var(--font-header);font-weight:700;color:var(--brown-dark);display:block;font-size:0.78em;letter-spacing:0.06em;text-transform:uppercase;margin-bottom:3px;">🔁 Rejugabilidad</span>Alta · eventos aleatorios</div>
+                </div>
+            </div>
+
+            <!-- BLOQUE: DESCRIPCIÓN -->
+            <h3>¿Qué es este simulador?</h3>
+            <p>Es un juego de toma de decisiones histórico ambientado en el primer viaje de Cristóbal Colón (1492). El estudiante asume el rol de <strong>Primer Oficial de la flota</strong> y debe gestionar cuatro variables —Moral, Suministros, Integridad de los navíos y Autoridad— a lo largo de 40 eventos narrativos basados en hechos reales.</p>
+            <p>Cada partida es <strong>única</strong>: 17 eventos históricos clave aparecen siempre en sus posiciones correctas (el zarpe de Palos, el Mar de los Sargazos, el avistamiento de tierra, el naufragio de la Santa María), mientras que los 23 restantes se seleccionan aleatoriamente de un pool de 43 situaciones posibles. Esto garantiza rejugabilidad y variedad temática entre grupos.</p>
+
+            <!-- BLOQUE: OBJETIVOS -->
+            <h3>Objetivos de aprendizaje</h3>
+            <ul>
+                <li><strong>Comprender las condiciones materiales</strong> de la navegación oceánica del siglo XV: tecnología, alimentación, enfermedades, comunicación entre naves.</li>
+                <li><strong>Analizar el rol de los instrumentos científicos</strong> —astrolabio, ballestilla, brújula, cuadrante, sonda— frente a la navegación empírica por estima.</li>
+                <li><strong>Desarrollar pensamiento crítico</strong> sobre decisiones históricas: racionamiento, castigos, liderazgo y gestión del conflicto.</li>
+                <li><strong>Problematizar el concepto de "descubrimiento"</strong> y la perspectiva de los pueblos taínos en el primer contacto.</li>
+                <li><strong>Reconocer la multicausalidad histórica</strong>: cada variable del juego representa una dimensión real de la expedición.</li>
+                <li><strong>Ejercitar la toma de decisiones éticas</strong> en contextos de presión, incertidumbre y recursos escasos.</li>
+            </ul>
+
+            <!-- BLOQUE: CONTENIDOS -->
+            <h3>Contenidos históricos abordados</h3>
+            <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:10px; margin: clamp(10px,2vw,18px) 0;">
+                <div style="background:rgba(14,45,80,0.07); border-left:4px solid var(--navy); border-radius:8px; padding:10px 14px;">
+                    <div style="font-family:var(--font-header);font-weight:700;font-size:0.82em;color:var(--navy);margin-bottom:6px;">🌊 Navegación</div>
+                    <div style="font-family:var(--font-body);font-size:0.9em;line-height:1.5;">Instrumentos náuticos · Declinación magnética · Navegación por estima · Corrientes atlánticas · Vientos alisios · Técnica de calafateo</div>
+                </div>
+                <div style="background:rgba(146,32,32,0.07); border-left:4px solid var(--crimson); border-radius:8px; padding:10px 14px;">
+                    <div style="font-family:var(--font-header);font-weight:700;font-size:0.82em;color:var(--crimson);margin-bottom:6px;">⚔️ Conflicto y poder</div>
+                    <div style="font-family:var(--font-body);font-size:0.9em;line-height:1.5;">Autoridad y motines · Insubordinación de Pinzón · Castigos corporales · Liderazgo en crisis · Tensión entre capitanes</div>
+                </div>
+                <div style="background:rgba(26,78,26,0.07); border-left:4px solid var(--forest); border-radius:8px; padding:10px 14px;">
+                    <div style="font-family:var(--font-header);font-weight:700;font-size:0.82em;color:var(--forest);margin-bottom:6px;">🌿 Primer contacto</div>
+                    <div style="font-family:var(--font-body);font-size:0.9em;line-height:1.5;">Pueblo taíno · San Salvador · Intercambio cultural · Extracción de oro · Perspectiva indígena · Caucho y tabaco</div>
+                </div>
+                <div style="background:rgba(200,150,12,0.09); border-left:4px solid var(--gold-dark); border-radius:8px; padding:10px 14px;">
+                    <div style="font-family:var(--font-header);font-weight:700;font-size:0.82em;color:var(--gold-dark);margin-bottom:6px;">🍖 Vida cotidiana</div>
+                    <div style="font-family:var(--font-body);font-size:0.9em;line-height:1.5;">Alimentación a bordo · Escorbuto · Agua y salazón · Enfermedades · Roles de la tripulación · Vida en el sollado</div>
+                </div>
+                <div style="background:rgba(139,69,19,0.07); border-left:4px solid var(--brown); border-radius:8px; padding:10px 14px;">
+                    <div style="font-family:var(--font-header);font-weight:700;font-size:0.82em;color:var(--brown-dark);margin-bottom:6px;">🗺️ Geografía atlántica</div>
+                    <div style="font-family:var(--font-body);font-size:0.9em;line-height:1.5;">Islas Canarias · Mar de los Sargazos · Archipiélago de las Bahamas · La Española · Ruta de regreso · Corrientes de retorno</div>
+                </div>
+                <div style="background:rgba(41,128,185,0.07); border-left:4px solid #3498db; border-radius:8px; padding:10px 14px;">
+                    <div style="font-family:var(--font-header);font-weight:700;font-size:0.82em;color:#2471a3;margin-bottom:6px;">🔭 Ciencia e instrumentos</div>
+                    <div style="font-family:var(--font-body);font-size:0.9em;line-height:1.5;">Astrolabio y ballestilla · Cuadrante y brújula · Sonda de plomada · Reloj de arena · Ciencia vs experiencia empírica</div>
+                </div>
+            </div>
+
+            <!-- BLOQUE: VARIABLES -->
+            <h3>Las cuatro variables del juego</h3>
+            <p>Cada decisión modifica una o más de estas variables. Si alguna llega a un nivel crítico, la expedición fracasa. Discutir qué representa cada una es un buen punto de partida antes de jugar.</p>
+            <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:10px; margin:clamp(10px,2vw,16px) 0;">
+                <div style="border-radius:10px; padding:12px 14px; background:rgba(192,57,43,0.08); border:2px solid rgba(192,57,43,0.3);">
+                    <div style="font-family:var(--font-header);font-weight:700;color:#a93226;margin-bottom:4px;">⚔️ Moral de la tripulación</div>
+                    <div style="font-family:var(--font-body);font-size:0.9em;line-height:1.5;">Refleja el estado emocional y la cohesión del grupo. Un motín, el miedo, la falta de noticias o el agotamiento la reducen. El entusiasmo, la comida y los discursos la restauran. <em>Límite crítico: ≤ 15.</em></div>
+                </div>
+                <div style="border-radius:10px; padding:12px 14px; background:rgba(184,130,10,0.08); border:2px solid rgba(184,130,10,0.3);">
+                    <div style="font-family:var(--font-header);font-weight:700;color:#9a7d0a;margin-bottom:4px;">🍖 Suministros</div>
+                    <div style="font-family:var(--font-body);font-size:0.9em;line-height:1.5;">Agua, bizcocho, carne salada, vino, aceite. Se consume en cada evento. Las lluvias, el intercambio con los taínos y el racionamiento la sostienen. <em>Límite crítico: ≤ 8.</em></div>
+                </div>
+                <div style="border-radius:10px; padding:12px 14px; background:rgba(41,128,185,0.08); border:2px solid rgba(41,128,185,0.3);">
+                    <div style="font-family:var(--font-header);font-weight:700;color:#2471a3;margin-bottom:4px;">🛡️ Integridad de los navíos</div>
+                    <div style="font-family:var(--font-body);font-size:0.9em;line-height:1.5;">Estado estructural de las tres carabelas. Las tormentas, arrecifes y descuido la dañan. El calafateo y las reparaciones la restauran. <em>Límite crítico: ≤ 12.</em></div>
+                </div>
+                <div style="border-radius:10px; padding:12px 14px; background:rgba(142,68,173,0.08); border:2px solid rgba(142,68,173,0.3);">
+                    <div style="font-family:var(--font-header);font-weight:700;color:#7d3c98;margin-bottom:4px;">👑 Autoridad del oficial</div>
+                    <div style="font-family:var(--font-body);font-size:0.9em;line-height:1.5;">Se desgasta 2 puntos por evento de forma pasiva —el tiempo en alta mar erosiona el poder. Las decisiones firmes la recuperan, pero los castigos crueles tienen consecuencias a largo plazo.</div>
+                </div>
+            </div>
+
+            <!-- BLOQUE: PROPUESTAS DE USO -->
+            <h3>Propuestas de uso en el aula</h3>
+
+            <div style="margin: clamp(10px,2vw,16px) 0; border-radius:10px; border:2px solid rgba(139,69,19,0.2); overflow:hidden;">
+                <div style="background:linear-gradient(90deg,var(--brown-dark),var(--brown)); color:var(--parchment-light); font-family:var(--font-header); font-weight:700; font-size:clamp(0.82rem,1.7vw,1rem); padding:8px 16px; letter-spacing:0.05em;">
+                    🎮 MODALIDAD 1 — Juego individual + reflexión escrita (45 min)
+                </div>
+                <div style="padding:clamp(12px,2vw,18px) clamp(14px,2.5vw,20px); font-family:var(--font-body); font-size:clamp(0.88rem,1.8vw,1.02rem); line-height:1.7;">
+                    <strong>Antes:</strong> Presentar brevemente el contexto (5 min). ¿Qué sabían los europeos del Atlántico en 1492? ¿Qué instrumentos tenían?<br>
+                    <strong>Durante:</strong> Cada estudiante juega en su celular o tablet. Pedirles que anoten las 3 decisiones más difíciles y por qué las tomaron.<br>
+                    <strong>Después:</strong> Compartir el perfil de liderazgo generado. Reflexión escrita: ¿Qué decisión cambiarías? ¿Por qué?
+                </div>
+            </div>
+
+            <div style="margin: clamp(10px,2vw,16px) 0; border-radius:10px; border:2px solid rgba(139,69,19,0.2); overflow:hidden;">
+                <div style="background:linear-gradient(90deg,var(--brown-dark),var(--brown)); color:var(--parchment-light); font-family:var(--font-header); font-weight:700; font-size:clamp(0.82rem,1.7vw,1rem); padding:8px 16px; letter-spacing:0.05em;">
+                    👥 MODALIDAD 2 — Juego grupal proyectado + debate (60-90 min)
+                </div>
+                <div style="padding:clamp(12px,2vw,18px) clamp(14px,2.5vw,20px); font-family:var(--font-body); font-size:clamp(0.88rem,1.8vw,1.02rem); line-height:1.7;">
+                    <strong>Organización:</strong> El docente proyecta el juego en el pizarrón digital. La clase se divide en grupos de 4-5 personas. Cada grupo delibera 1-2 minutos antes de votar su decisión. El docente elige la opción más votada.<br>
+                    <strong>Ventaja clave:</strong> Cada evento es un disparador de debate. El docente puede pausar para contextualizar históricamente antes de revelar los efectos.<br>
+                    <strong>Cierre:</strong> Analizar el perfil de liderazgo colectivo. ¿Qué tipo de líder fue el curso?
+                </div>
+            </div>
+
+            <div style="margin: clamp(10px,2vw,16px) 0; border-radius:10px; border:2px solid rgba(139,69,19,0.2); overflow:hidden;">
+                <div style="background:linear-gradient(90deg,var(--brown-dark),var(--brown)); color:var(--parchment-light); font-family:var(--font-header); font-weight:700; font-size:clamp(0.82rem,1.7vw,1rem); padding:8px 16px; letter-spacing:0.05em;">
+                    🔁 MODALIDAD 3 — Comparación de partidas (90 min / 2 clases)
+                </div>
+                <div style="padding:clamp(12px,2vw,18px) clamp(14px,2.5vw,20px); font-family:var(--font-body); font-size:clamp(0.88rem,1.8vw,1.02rem); line-height:1.7;">
+                    <strong>Clase 1:</strong> Grupos de 3 juegan una partida completa y registran sus decisiones clave y el resultado final.<br>
+                    <strong>Clase 2:</strong> Cada grupo presenta su estrategia. Comparar: ¿quién tuvo mejor moral? ¿quién llegó con más suministros? ¿quién fue más autoritario? Como los eventos aleatorios cambian entre partidas, hay que contextualizar las diferencias.<br>
+                    <strong>Actividad de cierre:</strong> Redactar una entrada de bitácora en primera persona desde el punto de vista del Primer Oficial.
+                </div>
+            </div>
+
+            <!-- BLOQUE: PREGUNTAS DE DEBATE -->
+            <h3>Preguntas disparadoras para el debate</h3>
+            <ul>
+                <li><strong>Ciencia vs experiencia:</strong> ¿Por qué los marineros desconfiaban de los instrumentos? ¿Cuándo tiene más valor la experiencia que la medición científica?</li>
+                <li><strong>Liderazgo:</strong> ¿Qué diferencia a un líder autoritario de uno justo? ¿Pueden coexistir autoridad y empatía en una crisis?</li>
+                <li><strong>Ética:</strong> ¿Eran justificables los castigos corporales en el siglo XV? ¿El contexto histórico relativiza la crueldad?</li>
+                <li><strong>Primer contacto:</strong> ¿Cómo habrían descrito los taínos el mismo encuentro? ¿Por qué la historia usó el término "descubrimiento"?</li>
+                <li><strong>Recursos:</strong> ¿En qué situaciones actuales se repite la tensión entre necesidades individuales y el bien colectivo?</li>
+                <li><strong>Colón:</strong> ¿Era Colón un héroe, un visionario, un manipulador? ¿Puede ser las tres cosas a la vez?</li>
+                <li><strong>Contingencia histórica:</strong> Si hubiera habido más tormentas, ¿habría fracasado el viaje? ¿Cuánto del "descubrimiento" fue suerte?</li>
+            </ul>
+
+            <!-- BLOQUE: EVALUACIÓN -->
+            <h3>Sugerencias de evaluación</h3>
+            <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:10px; margin:clamp(10px,2vw,16px) 0; font-family:var(--font-body); font-size:clamp(0.88rem,1.8vw,1rem); line-height:1.6;">
+                <div style="background:rgba(200,150,12,0.07); border:1px solid rgba(200,150,12,0.3); border-radius:8px; padding:12px;">
+                    <div style="font-family:var(--font-header);font-weight:700;color:var(--brown-dark);margin-bottom:5px;">📝 Registro de decisiones</div>
+                    Pedir a los estudiantes que justifiquen por escrito 5 decisiones tomadas durante el juego, citando el contexto histórico.
+                </div>
+                <div style="background:rgba(200,150,12,0.07); border:1px solid rgba(200,150,12,0.3); border-radius:8px; padding:12px;">
+                    <div style="font-family:var(--font-header);font-weight:700;color:var(--brown-dark);margin-bottom:5px;">🗣️ Exposición oral</div>
+                    Cada grupo explica su estrategia y analiza el perfil de liderazgo generado. ¿Coincide con cómo se veían a sí mismos?
+                </div>
+                <div style="background:rgba(200,150,12,0.07); border:1px solid rgba(200,150,12,0.3); border-radius:8px; padding:12px;">
+                    <div style="font-family:var(--font-header);font-weight:700;color:var(--brown-dark);margin-bottom:5px;">✍️ Bitácora histórica</div>
+                    Redactar 3 entradas de diario en primera persona: desde el oficial español, desde un marinero raso, y desde un taíno.
+                </div>
+                <div style="background:rgba(200,150,12,0.07); border:1px solid rgba(200,150,12,0.3); border-radius:8px; padding:12px;">
+                    <div style="font-family:var(--font-header);font-weight:700;color:var(--brown-dark);margin-bottom:5px;">🔍 Investigación</div>
+                    Elegir un evento del juego y ampliar la información con fuentes históricas. ¿Qué dice el Diario de Colón sobre ese momento?
+                </div>
+            </div>
+
+            <!-- BLOQUE: CONEXIÓN CURRICULAR -->
+            <h3>Conexión con el currículo</h3>
+            <p>Este simulador trabaja los siguientes núcleos del diseño curricular de Ciencias Sociales e Historia para el nivel secundario (Argentina):</p>
+            <ul>
+                <li>Las sociedades europeas del siglo XV y la expansión ultramarina.</li>
+                <li>Avances científicos y tecnológicos del Renacimiento: instrumentos de navegación, cartografía, astronomía.</li>
+                <li>Los pueblos originarios de América y el impacto del contacto europeo.</li>
+                <li>Relaciones de poder, liderazgo y conflicto en contextos históricos.</li>
+                <li>Pensamiento crítico, toma de decisiones y ética histórica.</li>
+                <li>Alfabetización digital y uso de TIC como herramienta de aprendizaje.</li>
+            </ul>
+
+            <!-- BLOQUE: NOTA TÉCNICA -->
+            <h3>Nota sobre el diseño del juego</h3>
+            <p>El simulador incluye <strong>17 eventos fijos</strong> que siempre aparecen en posiciones históricamente coherentes (el zarpe de Palos, la crisis del Mar de los Sargazos, el avistamiento de tierra del 2 de octubre, el naufragio de la Santa María el 24 de diciembre de 1492, el regreso) y <strong>23 eventos aleatorios</strong> seleccionados de un pool de 43 situaciones posibles. Cada partida es distinta, lo que favorece que distintos grupos tengan experiencias diferentes para comparar.</p>
+            <p>Los <strong>eventos críticos de navegación</strong> (señalados con ¡EVENTO CRÍTICO!) ponen en juego específicamente la tensión entre instrumentos científicos y navegación por estima, un eje pedagógico central del juego. Se recomienda pausar el debate en esos momentos.</p>
+            <p>Algunos eventos incluyen decisiones <strong>éticamente cuestionables</strong> (castigos corporales, abandono de un marinero al mar, aprovecharse de los taínos). Están diseñados intencionalmente para abrir el debate sobre relativismo histórico y ética. El juego registra si el jugador recurrió a métodos crueles y lo refleja en el perfil final.</p>
+
+            <!-- PIE -->
+            <div style="text-align:center; margin-top:clamp(24px,4vw,40px); padding-top:clamp(14px,2.5vw,22px); border-top:2px dashed rgba(139,69,19,0.3);">
+                <p style="font-family:var(--font-header); font-size:clamp(0.75rem,1.5vw,0.9rem); color:var(--brown); letter-spacing:0.05em; margin-bottom:16px;">
+                    ⚜ ✦ ⚜ &nbsp;&nbsp; Creado por <strong>ProfeD.</strong> &nbsp;&nbsp; ⚜ ✦ ⚜
+                </p>
+                <button onclick="volverAlInicio()" class="btn-menu">⚓ Volver al menú principal</button>
+            </div>
+
+        </div>
+    </div>
+    <!-- Botón sticky de regreso (visible en móvil al scrollear) -->
+    <div class="info-back-sticky">
+        <button onclick="volverAlInicio()" class="btn-menu" style="margin:0;">⚓ Volver al menú</button>
+    </div>
+</div>
+
+
+<!-- ==================== PANTALLA FINAL ==================== -->
+<div id="end-screen" class="screen">
+    <div class="container" style="padding-top: clamp(12px, 2vw, 22px); padding-bottom: clamp(16px, 3vw, 32px);">
+        <div class="end-content">
+            <!-- Banner de resultado -->
+            <div id="end-banner" class="end-banner victoria">
+                <div id="ending-title"></div>
+                <div id="ending-subtitle"></div>
+            </div>
+
+            <!-- Cuerpo en 2 columnas -->
+            <div class="end-body">
+                <!-- Col izq: descripción + stats -->
+                <div>
+                    <div class="end-section">
+                        <div class="end-section-title">📜 Crónica del viaje</div>
+                        <div id="ending-description"></div>
+                    </div>
+                    <div class="end-section" style="margin-top: clamp(10px,1.5vw,16px)">
+                        <div class="end-section-title">⚓ Estado final de la expedición</div>
+                        <div class="end-stats" id="end-stats-grid"></div>
+                    </div>
+                </div>
+                <!-- Col der: perfil + logros -->
+                <div>
+                    <div class="end-section">
+                        <div class="end-section-title">🧭 Perfil de liderazgo</div>
+                        <div id="perfil-liderazgo"></div>
+                    </div>
+                    <div class="end-section" style="margin-top: clamp(10px,1.5vw,16px)">
+                        <div class="end-section-title">🏆 Logros de esta travesía</div>
+                        <div id="logros-container"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bitácora de decisiones -->
+            <div class="end-section" style="margin-top: clamp(12px,2vw,20px)">
+                <div class="end-section-title">📋 Bitácora de decisiones</div>
+                <div id="bitacora-container" class="bitacora-lista"></div>
+            </div>
+
+            <!-- Panel de puntaje -->
+            <div id="end-score-panel"></div>
+
+            <!-- Botones -->
+            <div class="end-actions">
+                <button onclick="reiniciarJuegoDesdeFinal()" class="btn-menu">🚢 Embarcar de nuevo</button>
+                <button onclick="volverAlInicio()" class="btn-menu">🏠 Volver al menú</button>
+                <button class="btn-captura" onclick="prepararCaptura()">
+                    <span class="captura-icon">📸</span>
+                    Preparar para captura
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== TARJETA DE CAPTURA ==================== -->
+<div id="capture-overlay" style="display:none;position:fixed;inset:0;z-index:999998;background:#0a0604;overflow-y:auto;-webkit-overflow-scrolling:touch;">
+    <div style="max-width:500px;margin:0 auto;padding:clamp(12px,3vw,24px) clamp(12px,3vw,24px) 0;box-sizing:border-box;">
+        <div id="capture-card" style="font-family:var(--font-body, Georgia,serif);">
+            <!-- contenido generado por prepararCaptura() -->
+        </div>
+    </div>
+    <div id="capture-instructions" style="position:sticky;bottom:0;background:rgba(10,6,4,0.97);border-top:1px solid rgba(200,150,12,0.3);padding:10px 16px;text-align:center;font-family:var(--font-header,serif);font-size:clamp(0.75rem,1.4vw,0.85rem);color:rgba(248,208,96,0.9);display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;">
+        <span id="capture-hint" style="display:flex;align-items:center;gap:6px;">📸 Tomá una captura de pantalla ahora</span>
+        <div style="display:flex;gap:8px;">
+            <button onclick="cerrarCaptura()" style="padding:6px 16px;font-family:inherit;font-size:0.8rem;font-weight:700;background:rgba(200,150,12,0.15);border:1px solid rgba(200,150,12,0.5);border-radius:6px;color:rgba(248,208,96,0.9);cursor:pointer;touch-action:manipulation;">✖ Cerrar</button>
+        </div>
+    </div>
+</div>
+
+    <script type="module" src="/js/main.js"></script>
+</body>
+</html>

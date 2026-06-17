@@ -1,0 +1,92 @@
+        /* ── MAPA: grande, protagonista ── */
+        .map-container {
+            position: relative;
+            height: clamp(300px, 50vw, 680px);
+            border: 4px solid var(--brown-dark);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow), 0 0 0 1px rgba(200,150,12,0.2);
+            overflow: hidden;
+            margin-bottom: 0;
+            background: #0d2d4f;
+            cursor: grab;
+            contain: strict;
+        }
+        .map-container:active { cursor: grabbing; }
+        .map-container svg { display: block; width: 100%; height: 100%; max-width: 100%; }
+        .map-container canvas { display: block; max-width: 100%; }
+        .map-container::after {
+            content: '';
+            position: absolute; inset: 0;
+            background: radial-gradient(ellipse at 50% 50%, transparent 50%, rgba(5,15,30,0.5) 100%);
+            pointer-events: none; z-index: 10;
+        }
+
+        /* Overlays del mapa */
+        .map-header {
+            /* clase legacy — ya no se usa en el DOM, mantener por si acaso */
+            display: none;
+        }
+        .map-header-bar {
+            width: 100%;
+            background: var(--panel-bg);
+            border: 1px solid rgba(107,58,24,0.25);
+            border-radius: 6px;
+            padding: clamp(5px,1vw,8px) clamp(10px,2vw,18px);
+            font-size: clamp(0.72rem, 1.4vw, 0.88rem);
+            font-family: var(--font-body);
+            font-style: italic;
+            text-align: center;
+            color: var(--ink-soft);
+            line-height: 1.35;
+            box-shadow: 0 1px 4px rgba(40,24,10,0.08);
+        }
+        .fleet-indicator {
+            position: absolute;
+            bottom: 6px; left: 8px;
+            background: rgba(253,248,238,0.93);
+            border: 1px solid var(--brown);
+            border-radius: 5px;
+            padding: 2px 8px;
+            display: flex; align-items: center;
+            gap: clamp(3px, 0.8vw, 8px);
+            z-index: 20;
+            font-size: clamp(0.55rem, 1.1vw, 0.8rem);
+            font-family: var(--font-header);
+            font-weight: 600;
+            color: var(--brown-dark);
+            pointer-events: none;
+        }
+        .progress-badge {
+            position: absolute;
+            bottom: 6px; right: 8px;
+            background: rgba(253,248,238,0.93);
+            padding: 2px 8px;
+            border-radius: 5px;
+            font-size: clamp(0.55rem, 1.1vw, 0.8rem);
+            font-family: var(--font-header);
+            font-weight: 600;
+            color: var(--brown-dark);
+            border: 1px solid var(--brown);
+            z-index: 20;
+            pointer-events: none;
+        }
+        .map-zoom-controls {
+            position: absolute;
+            top: 8px; right: 8px;
+            display: flex; flex-direction: column; gap: 3px;
+            z-index: 20;
+        }
+        .map-zoom-btn {
+            width: 28px; height: 28px;
+            background: rgba(253,248,238,0.92);
+            border: 1px solid var(--brown);
+            border-radius: 4px;
+            font-size: 1.05rem; line-height: 1;
+            cursor: pointer;
+            color: var(--brown-dark);
+            display: flex; align-items: center; justify-content: center;
+            font-family: monospace;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .map-zoom-btn:hover { background: var(--gold-pale); }

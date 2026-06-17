@@ -1,0 +1,244 @@
+        /* ── CUERPO PRINCIPAL: 2 columnas en desktop ── */
+        @media (min-width: 700px) {
+            .start-body {
+                flex-direction: row;
+                align-items: flex-start;
+            }
+        }
+
+        /* Sticker tooltip solo en hover para dispositivos con puntero */
+        @media (hover: hover) {
+            .sticker:hover .sticker-tooltip {
+                visibility: visible;
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+                transition: opacity 0.18s ease, transform 0.18s ease, visibility 0s linear 0s;
+            }
+        }
+
+        /* Ajustes mobile */
+        @media (max-width: 699px) {
+            .start-col-img { order: 0; }
+            .start-col-menu { order: 1; }
+            .start-img-frame { max-width: min(360px, 88vw); }
+        }
+
+        /* Stats bar responsive */
+        @media (max-width: 500px) {
+            .stats-bar { grid-template-columns: 1fr 1fr; }
+        }
+
+        /* En desktop: evento a pantalla completa debajo */
+        @media (min-width: 900px) {
+            .game-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Grid de opciones responsive */
+        @media (min-width: 580px) {
+            .options-grid { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+        }
+
+        /* Mobile adjustments for game screen */
+        @media (max-width: 699px) {
+            #game-screen > .container { padding: 8px; }
+            .map-container { height: clamp(180px, 44vw, 300px); }
+            .stats-bar { gap: 5px; }
+            .event-text { font-size: clamp(0.95rem, 4vw, 1.08rem); line-height: 1.65; }
+            .event-text::first-letter { font-size: 2rem; line-height: 0.8; margin-right: 5px; margin-top: 4px; }
+            .fleet-indicator { font-size: 0.6rem; gap: 3px; padding: 2px 6px; }
+            .fleet-indicator strong { font-size: 0.6rem; }
+            .game-controls { gap: 5px; }
+            .btn-control { padding: 6px 10px; font-size: 0.72rem; }
+            .btn-save { padding: 6px 10px; font-size: 0.72rem; }
+            .start-screen-img { max-width: min(320px, 85vw); }
+        }
+
+        /* Extra small screens */
+        @media (max-width: 400px) {
+            .stats-bar { grid-template-columns: 1fr 1fr; }
+            .stat-cell { padding: 6px 8px; gap: 5px; }
+            .stat-cell .var-icon { font-size: 1.1rem; }
+            .fleet-indicator { display: none; }
+            .btn-menu { padding: clamp(10px,2.5vw,14px) clamp(16px,3vw,28px); font-size: 0.9rem; }
+        }
+
+        /* Vars grid responsive */
+        @media (min-width: 700px) {
+            .vars-grid { grid-template-columns: 1fr; gap: clamp(6px, 1vw, 10px); }
+        }
+
+        /* End body 2 columns */
+        @media (min-width: 700px) {
+            .end-body { grid-template-columns: 1fr 1fr; }
+        }
+
+        /* ===================================================
+           FULLSCREEN — layout limpio y sin overflow oculto
+           =================================================== */
+        body.is-fullscreen { overflow: hidden; }
+
+        /* game-screen ocupa toda la pantalla como columna */
+        /* display:flex necesita !important para ganar a .screen.active { display:block !important } */
+        body.is-fullscreen #game-screen.active {
+            position: fixed !important; inset: 0;
+            display: flex !important; flex-direction: column;
+            overflow: hidden;
+            width: 100vw;
+            height: 100vh;
+            height: 100dvh;
+            height: var(--real-vh, 100dvh);
+        }
+
+        /* container: columna flex estricta, contiene todo */
+        body.is-fullscreen #game-screen .container {
+            flex: 1 1 0;
+            min-height: 0;
+            width: 100%;
+            max-width: 100% !important;
+            margin: 0 !important;
+            padding: 6px 8px 4px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            /* CRÍTICO: overflow visible para que el scroll del game-layout funcione */
+            overflow: hidden;
+        }
+
+        /* Elementos fijos: no crecen, no encogen */
+        body.is-fullscreen .map-container,
+        body.is-fullscreen .map-header-bar,
+        body.is-fullscreen .stats-bar,
+        body.is-fullscreen #alerta-peligro {
+            flex: 0 0 auto;
+            width: 100%;
+            min-width: 0;
+            box-sizing: border-box;
+        }
+
+        /* game-layout: ocupa todo el espacio restante y scrollea */
+        body.is-fullscreen .game-layout {
+            flex: 1 1 0;
+            min-height: 200px;
+            overflow-y: auto !important;
+            overflow-x: hidden;
+            -webkit-overflow-scrolling: touch;
+            display: flex !important;
+            flex-direction: column;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        /* event-container crece para llenar el espacio disponible */
+        body.is-fullscreen .event-container {
+            flex: 1 1 auto;
+            overflow: visible;
+            width: 100%;
+            box-sizing: border-box;
+            padding: 10px 14px 16px;
+            border-width: 3px;
+        }
+
+        /* ── FILA 1: MAPA ── */
+        body.is-fullscreen .map-container {
+            height: clamp(160px, 32dvh, 280px);
+            margin-bottom: 0;
+            border-width: 3px;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        /* Mapa más grande en fullscreen PC (≥700px) */
+        @media (min-width: 700px) {
+            body.is-fullscreen .map-container {
+                height: clamp(300px, 52dvh, 520px);
+            }
+        }
+
+        body.is-fullscreen .map-header-bar {
+            font-size: clamp(0.82rem, 1.6vh, 1rem);
+            padding: 5px 14px;
+            border-radius: 4px;
+        }
+        body.is-fullscreen .fleet-indicator {
+            font-size: clamp(0.6rem, 1.2vw, 0.82rem);
+            padding: 3px 8px;
+            gap: 6px;
+        }
+        body.is-fullscreen .progress-badge {
+            font-size: clamp(0.6rem, 1.2vw, 0.82rem);
+            padding: 3px 8px;
+        }
+
+        /* ── FILA 2: STATS BAR — compacta ── */
+        body.is-fullscreen .stats-bar {
+            gap: 4px;
+            grid-template-columns: repeat(4, 1fr);
+            margin: 0 !important;
+        }
+        body.is-fullscreen .stat-cell {
+            padding: 4px 6px; gap: 4px;
+            border-radius: 7px;
+            min-width: 0;
+        }
+        body.is-fullscreen .stat-cell .var-label { font-size: 0.55rem; }
+        body.is-fullscreen .stat-cell .var-value { font-size: 0.9rem; min-width: 22px; }
+        body.is-fullscreen .stat-cell .var-bar { height: 6px; margin-top: 2px; }
+        body.is-fullscreen .stat-cell .var-icon { font-size: 1rem; }
+
+        /* ── EVENTO: tipografía y botones ── */
+        body.is-fullscreen .event-header {
+            margin-bottom: 6px;
+            width: 100%;
+        }
+        body.is-fullscreen .event-badge {
+            font-size: clamp(0.78rem, 1.3vh, 0.98rem);
+            padding: 3px 12px;
+        }
+        body.is-fullscreen .btn-save {
+            font-size: clamp(0.7rem, 1.2vh, 0.9rem);
+            padding: 4px 10px; min-height: 32px;
+        }
+        body.is-fullscreen .event-text {
+            font-size: clamp(0.88rem, 1.7vh, 1.1rem);
+            line-height: 1.58;
+            padding-bottom: 8px;
+            word-break: break-word;
+            overflow-wrap: break-word;
+        }
+        body.is-fullscreen .event-text::first-letter {
+            font-size: 2rem;
+            line-height: 0.8;
+            margin-right: 5px;
+            margin-top: 3px;
+        }
+        body.is-fullscreen .options-grid {
+            gap: clamp(4px, 0.8vh, 8px);
+        }
+        body.is-fullscreen .option-btn {
+            font-size: clamp(0.8rem, 1.5vh, 1rem);
+            padding: clamp(7px, 1vh, 11px) clamp(8px, 1.3vw, 14px);
+            min-height: 40px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        body.is-fullscreen .game-controls {
+            margin-top: 4px;
+            gap: 6px;
+            width: 100%;
+        }
+        body.is-fullscreen .btn-control {
+            font-size: clamp(0.7rem, 1.2vh, 0.88rem);
+            padding: 5px 12px; min-height: 34px;
+        }
+
+        /* Pantallas scrollables en fullscreen */
+        body.is-fullscreen #end-screen.active,
+        body.is-fullscreen #start-screen.active,
+        body.is-fullscreen #info-screen.active {
+            position: fixed; inset: 0;
+            overflow-y: auto; display: block;
+        }
+

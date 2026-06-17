@@ -1,0 +1,44 @@
+        /* ===== VARIABLES Y RESET ===== */
+        :root {
+            /* Pergamino — base cálida, legible, no quemada */
+            --parchment:       #f7eed8;
+            --parchment-dark:  #eadbb8;
+            --parchment-light: #fdf8ee;
+            --panel-bg:        rgba(253,248,238,0.98);
+            --panel-bg-alt:    rgba(244,234,208,0.98);
+
+            /* Tinta — marrón oscuro cálido, no negro */
+            --ink:             #28180a;
+            --ink-soft:        #4a3018;
+
+            /* Marrón — cálido y con buen contraste sobre pergamino */
+            --brown:           #8b4513;  /* saddlebrown clásico */
+            --brown-light:     #b5621a;
+            --brown-dark:      #5c2d09;
+            --brown-muted:     #a07848;
+
+            /* Oro — acento cálido, legible */
+            --gold:            #c8960c;
+            --gold-light:      #e8b420;
+            --gold-shine:      #f8d060;
+            --gold-pale:       #f5e4a8;
+            --gold-dark:       #8a6808;
+
+            /* Acentos contextuales */
+            --crimson:         #922020;
+            --navy:            #0e2d50;
+            --forest:          #1a4e1a;
+
+            /* Sombras */
+            --border-thick:    5px;
+            --radius:          12px;
+            --shadow:          0 4px 20px rgba(40,24,10,0.18), 0 1px 4px rgba(40,24,10,0.12);
+            --shadow-lift:     0 12px 40px rgba(40,24,10,0.26);
+            --gap:             clamp(10px, 2.5vw, 22px);
+            --pad:             clamp(12px, 3vw, 26px);
+
+            /* Fuentes */
+            --font-title:  'Palatino Linotype', 'Book Antiqua', Palatino, Georgia, serif;
+            --font-header: 'Palatino Linotype', 'Book Antiqua', Palatino, Georgia, serif;
+            --font-body:   Georgia, 'Times New Roman', 'Palatino Linotype', serif;
+        }
