@@ -60,8 +60,58 @@ window.verSnapshot = verSnapshot;
 window._toggleErrorPanel = toggleErrorPanel;
 window._limpiarErrores = limpiarErrores;
 
+// Splash progress: fill to 80% during module evaluation
+let _progressInterval = null;
+function _iniciarProgressSplash() {
+    const bar = document.getElementById('splash-progress');
+    const status = document.getElementById('splash-status');
+    if (!bar) return;
+    let p = 0;
+    _progressInterval = setInterval(() => {
+        if (p < 75) { p += 2 + Math.random() * 3; if (p > 75) p = 75; }
+        bar.style.width = p + '%';
+        const msgs = ['Preparando la flota...', 'Izando velas...', 'Reclutando marineros...', 'Cargando provisiones...', 'Consultando mapas...', 'Ultimando detalles...'];
+        if (status) status.textContent = msgs[Math.floor(p / 15) % msgs.length];
+    }, 200);
+}
+
+function _finalizarSplash() {
+    if (_progressInterval) { clearInterval(_progressInterval); _progressInterval = null; }
+    const bar = document.getElementById('splash-progress');
+    const status = document.getElementById('splash-status');
+    const btn = document.getElementById('splash-btn');
+    if (bar) bar.style.width = '100%';
+    if (status) status.textContent = 'Listo para zarpar';
+    setTimeout(() => {
+        if (btn) btn.style.display = 'inline-block';
+    }, 500);
+}
+
+window._comenzar = function() {
+    const splash = document.getElementById('splash-screen');
+    const btn = document.getElementById('splash-btn');
+    if (btn) btn.style.display = 'none';
+    // Enter fullscreen if supported (iOS Safari ignores silently)
+    const el = document.documentElement;
+    const req = el.requestFullscreen || el.webkitRequestFullscreen || el.mozRequestFullScreen || el.msRequestFullscreen;
+    if (req) {
+        req.call(el).catch(() => {});
+    }
+    // Transition to start screen
+    if (splash) {
+        splash.classList.add('hidden');
+        setTimeout(() => { splash.style.display = 'none'; }, 600);
+    }
+};
+
+// Start splash progress immediately
+_iniciarProgressSplash();
+
 window.onload = () => {
     initErrorBanner();
+    // Complete loading and show button
+    _finalizarSplash();
+
     let lastTap = 0;
     document.addEventListener('touchend', e => {
         const now = Date.now();
@@ -82,13 +132,6 @@ window.onload = () => {
         if (logros   && logros.classList.contains('visible'))     { cerrarLogrosStats(); return; }
         if (confirm  && confirm.style.display === 'flex')         { confirm.style.display = 'none'; return; }
     });
-
-    // Ocultar loader de carga una vez que los módulos están listos
-    const loader = document.getElementById('loading-screen');
-    if (loader) {
-        loader.classList.add('loaded');
-        setTimeout(() => { loader.style.display = 'none'; }, 600);
-    }
 
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('./sw.js').then(reg => {
