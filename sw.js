@@ -1,12 +1,12 @@
-const CACHE_NAME = 'colon-v@1781738420507';
+const CACHE_NAME = 'colon-v@1781745374161';
 const PRE_CACHE = [
   "./index.html",
   "./img/icon-512.svg",
   "./img/icon-192.svg",
   "./assets/tripulantes-DRN_4sOz.jpg",
   "./assets/start-screen-bg-DzTOrHyB.jpg",
-  "./assets/index-C1QREvOw.css",
-  "./assets/index-B9ySzWXc.js",
+  "./assets/index-Ds9194CX.js",
+  "./assets/index-By9ZRBLV.css",
   "./assets/d3-C3JoYz7k.js",
   "./assets/cristobal_colon-CH7JhTIn.jpg"
 ];
