@@ -1,5 +1,6 @@
 import { EVENTOS_FIJOS } from '../../data/eventosFijos.js';
 import { POOL_EVENTOS } from '../../data/poolEventos.js';
+import { GEO_FIJOS } from '../../data/rutas.js';
 import { DIFICULTAD_CONFIG } from '../../data/dificultad.js';
 import { gameState, createInitialState } from '../gameState.js';
 import { detectarContextoEvento, aplicarTooltips, siguienteFrase, _frasesQueue, mostrarFraseRandom, getNombreJugador } from '../utils.js';
@@ -21,8 +22,19 @@ import { mostrarTripulacionModal } from './crewModal.js';
 
 let secuenciaActual = [];
 
+function _estimarProgreso(index) {
+    const claves = Object.keys(GEO_FIJOS).map(Number).sort((a, b) => a - b);
+    if (GEO_FIJOS.hasOwnProperty(index)) return GEO_FIJOS[index];
+    let antes = claves[0], despues = claves[claves.length - 1];
+    for (const c of claves) { if (c <= index) antes = c; if (c >= index) { despues = c; break; } }
+    if (antes === despues) return GEO_FIJOS[antes];
+    const peso = (index - antes) / (despues - antes);
+    return GEO_FIJOS[antes] + peso * (GEO_FIJOS[despues] - GEO_FIJOS[antes]);
+}
+
 function generarSecuenciaEventos() {
     const poolShuffled = [...POOL_EVENTOS].sort(() => Math.random() - 0.5);
+    const usados = new Set();
     const secuencia = [];
     let poolIdx = 0;
     for (let i = 0; i < 40; i++) {
@@ -30,9 +42,27 @@ function generarSecuenciaEventos() {
         if (EVENTOS_FIJOS.hasOwnProperty(fixedKey)) {
             const ev = EVENTOS_FIJOS[fixedKey];
             secuencia.push({ ...ev });
-        } else if (poolIdx < poolShuffled.length) {
-            secuencia.push({ ...poolShuffled[poolIdx], id: poolShuffled[poolIdx].id });
-            poolIdx++;
+        } else {
+            const prog = _estimarProgreso(i);
+            let encontrado = false;
+            for (let intento = 0; intento < poolShuffled.length; intento++) {
+                const idx = (poolIdx + intento) % poolShuffled.length;
+                if (usados.has(idx)) continue;
+                const ev = poolShuffled[idx];
+                if (!ev.minProgress || prog >= ev.minProgress) {
+                    secuencia.push({ ...ev, id: ev.id });
+                    usados.add(idx);
+                    poolIdx = (idx + 1) % poolShuffled.length;
+                    encontrado = true;
+                    break;
+                }
+            }
+            if (!encontrado) {
+                const ev = poolShuffled[poolIdx];
+                secuencia.push({ ...ev, id: ev.id });
+                usados.add(poolIdx);
+                poolIdx = (poolIdx + 1) % poolShuffled.length;
+            }
         }
     }
     return secuencia;
