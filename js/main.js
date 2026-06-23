@@ -21,6 +21,7 @@ import { actualizarVarsUI, mostrarDelta, actualizarAlertaPeligro, actualizarFase
 import { confirmarVolverAlInicio, seleccionarDificultad, mostrarBriefing, iniciarJuego, mostrarConfirm, mostrarInfo, volverAlInicio, reiniciarJuego, reiniciarJuegoDesdeFinal, abrirLogrosStats, cerrarLogrosStats, lsTab, mostrarHitoHistorico, cerrarHitoOverlay } from './ui/modals.js';
 import { consultarColon, cerrarConsultarColon } from './events/colonConsult.js';
 import { mostrarTripulacionModal, cerrarTripulacionModal } from './events/crewModal.js';
+import { initInstrumentos } from './ui/instrumentos.js';
 import { prepararCaptura, cerrarCaptura, verSnapshot } from './ui/captureUI.js';
 import './tools/tooltipSystem.js';
 import './debug/errorCapture.js';
@@ -108,6 +109,7 @@ window._comenzar = function() {
 _iniciarProgressSplash();
 
 window.onload = () => {
+    initInstrumentos();
     initErrorBanner();
     // Complete loading and show button
     _finalizarSplash();

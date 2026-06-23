@@ -19,6 +19,7 @@ import { _iniciarJuegoConFS } from '../ui/screenManager.js';
 import { actualizarNombreJugador } from '../ui/statsUI.js';
 import { getColonAdvice } from '../../data/colonAdvice.js';
 import { mostrarTripulacionModal } from './crewModal.js';
+import { cargarBotonesInstrumentos } from '../ui/instrumentos.js';
 
 let secuenciaActual = [];
 
@@ -168,6 +169,7 @@ function cargarEvento(index) {
                 });
             }
         }
+        cargarBotonesInstrumentos();
         const optContainer = document.getElementById('options-container');
         optContainer.innerHTML = '';
         const esFinal = ev.opciones.length === 1;
@@ -286,6 +288,8 @@ function elegirOpcion(op, evId) {
     document.querySelectorAll('.option-btn').forEach(b => b.disabled = true);
     const consultBtn = document.getElementById('btn-consultar-colon');
     if (consultBtn) { consultBtn.style.display = 'none'; }
+    const instrRow = document.querySelector('.instrumentos-row');
+    if (instrRow) instrRow.style.display = 'none';
     actualizarVarsUI();
     if (gameState.moral <= 15 || gameState.suministros <= 8 || gameState.integridad <= 12) {
         finalizarJuegoTemprano();

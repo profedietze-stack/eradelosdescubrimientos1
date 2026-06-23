@@ -2,9 +2,9 @@
         .map-container {
             position: relative;
             height: clamp(300px, 50vw, 680px);
-            border: 4px solid var(--brown-dark);
-            border-radius: var(--radius);
-            box-shadow: var(--shadow), 0 0 0 1px rgba(200,150,12,0.2);
+            border: 2px solid rgba(200,150,12,0.25);
+            border-radius: 12px;
+            box-shadow: 0 4px 30px rgba(0,0,0,0.3), 0 0 0 1px rgba(200,150,12,0.08);
             overflow: hidden;
             margin-bottom: 0;
             background: #0d2d4f;
@@ -28,23 +28,23 @@
         }
         .map-header-bar {
             width: 100%;
-            background: var(--panel-bg);
-            border: 1px solid rgba(107,58,24,0.25);
+            background: linear-gradient(135deg, #1a120c 0%, #241c14 100%);
+            border: 1px solid rgba(200,150,12,0.15);
             border-radius: 6px;
             padding: clamp(5px,1vw,8px) clamp(10px,2vw,18px);
             font-size: clamp(0.72rem, 1.4vw, 0.88rem);
             font-family: var(--font-body);
             font-style: italic;
             text-align: center;
-            color: var(--ink-soft);
+            color: rgba(200,180,150,0.6);
             line-height: 1.35;
-            box-shadow: 0 1px 4px rgba(40,24,10,0.08);
+            box-shadow: 0 1px 4px rgba(0,0,0,0.15);
         }
         .fleet-indicator {
             position: absolute;
             bottom: 6px; left: 8px;
-            background: rgba(253,248,238,0.93);
-            border: 1px solid var(--brown);
+            background: rgba(20,14,10,0.88);
+            border: 1px solid rgba(200,150,12,0.15);
             border-radius: 5px;
             padding: 2px 8px;
             display: flex; align-items: center;
@@ -53,20 +53,20 @@
             font-size: clamp(0.55rem, 1.1vw, 0.8rem);
             font-family: var(--font-header);
             font-weight: 600;
-            color: var(--brown-dark);
+            color: rgba(200,180,150,0.7);
             pointer-events: none;
         }
         .progress-badge {
             position: absolute;
             bottom: 6px; right: 8px;
-            background: rgba(253,248,238,0.93);
+            background: rgba(20,14,10,0.88);
             padding: 2px 8px;
             border-radius: 5px;
             font-size: clamp(0.55rem, 1.1vw, 0.8rem);
             font-family: var(--font-header);
             font-weight: 600;
-            color: var(--brown-dark);
-            border: 1px solid var(--brown);
+            color: rgba(200,180,150,0.7);
+            border: 1px solid rgba(200,150,12,0.15);
             z-index: 20;
             pointer-events: none;
         }
@@ -78,15 +78,16 @@
         }
         .map-zoom-btn {
             width: 28px; height: 28px;
-            background: rgba(253,248,238,0.92);
-            border: 1px solid var(--brown);
+            background: rgba(20,14,10,0.88);
+            border: 1px solid rgba(200,150,12,0.2);
             border-radius: 4px;
             font-size: 1.05rem; line-height: 1;
             cursor: pointer;
-            color: var(--brown-dark);
+            color: rgba(200,180,150,0.6);
             display: flex; align-items: center; justify-content: center;
             font-family: monospace;
             touch-action: manipulation;
             -webkit-tap-highlight-color: transparent;
+            transition: all 0.18s ease;
         }
-        .map-zoom-btn:hover { background: var(--gold-pale); }
+        .map-zoom-btn:hover { background: rgba(200,150,12,0.15); color: var(--gold-light); border-color: rgba(200,150,12,0.4); }

@@ -7,9 +7,10 @@
 - Dev: `npm run dev`
 
 ## Estructura clave
-- `index.html` — Todo el HTML inline (919 líneas)
-- `js/main.js` — Entry point, 27 funciones expuestas a `window.*`
-- `js/events/eventLoader.js` — Núcleo del juego (350 líneas)
+- `index.html` — Todo el HTML inline (~1032 líneas)
+- `js/main.js` — Entry point, funciones expuestas a `window.*`
+- `js/events/eventLoader.js` — Núcleo del juego (~405 líneas)
+- `js/ui/instrumentos.js` — 4 instrumentos interactivos (brújula, astrolabio, ballestilla, cuadrante) con SVG + pointer events + física de péndulo
 - `js/stats/logrosEngine.js` — Logros, bitácora, stats, puntaje
 - `js/stats/statsEngine.js` — Stats persistentes, cálculo de puntaje
 - `js/ui/modals.js` — Briefing, logros/stats modal, hito histórico
@@ -69,6 +70,27 @@
 - Perfil de liderazgo con texto completo (no solo `<strong>`)
 - Badges de dificultad/eventos/fecha en el footer
 - Hint de captura específico por plataforma (iOS/Android/PC)
+
+### 6. Rediseño visual unificado (modo oscuro + gold)
+- **Stats bar**: fondo `#1c140f` oscuro con bordes gold, labels en dorado suave, valores gold-light
+- **Event container**: fondo `#1a120c` con borde gold 1px + glow sutil (mismo estilo que modales Colón/tripulación)
+- **Option buttons**: fondo oscuro con barra gold izquierda que se expande al hover
+- **Game screen**: fondo `#0d0805` degradado oscuro (antes parchment claro)
+- **Mapa**: borde gold 1px (antes borde marrón 4px)
+- **Overlays del mapa** (flota, progreso, zoom): fondo oscuro translúcido, texto gold suave
+- **Briefing modal**: unificado con fondo oscuro `#1c140f` + gold borders (antes parchment claro)
+- **Selector dificultad**: botones oscuros translúcidos, activo = gradiente gold sólido
+- Todos los botones de juego (guardar, continuar, consultar) estilizados con gold translúcido sobre oscuro
+
+### 7. Instrumentos interactivos durante la partida
+- Archivo nuevo: `js/ui/instrumentos.js` (446 líneas)
+- Fila de 4 botones en el event-container (junto a "Consultar a Colón"): Astrolabio, Brújula, Ballestilla, Cuadrante
+- Modal genérico con SVG interactivo para cada instrumento:
+  - **Brújula**: aguja siempre apunta al norte; click rápido 3× → sacudida y vuelve; DeviceOrientation en mobile con permiso
+  - **Astrolabio**: alidada arrastrable con pointer events, muestra ángulo en vivo
+  - **Ballestilla**: travesaño deslizable vertical, muestra altura simulada 5°-85°
+  - **Cuadrante**: plomada con física de péndulo amortiguado (requestAnimationFrame), click para soltar
+- Botones se ocultan durante consecuencias, reaparecen en cada evento nuevo
 
 ## Convenciones
 - NO agregar comentarios en el código a menos que sea necesario
