@@ -135,7 +135,7 @@ function _crearSVGInstrumento(id) {
                 <circle cx="40" cy="42" r="4" fill="#3d1f08"/>
                 <circle cx="40" cy="42" r="1.8" fill="#f8d060"/>
                 <ellipse cx="40" cy="8" rx="6" ry="4" fill="none" stroke="#5c3a08" stroke-width="2.5"/>
-                <text id="astrolabio-angulo" x="40" y="82" text-anchor="middle" font-size="8" font-family="serif" fill="#f8d060" font-weight="bold">0\u00B0</text>
+                <text id="astrolabio-angulo" x="40" y="76" text-anchor="middle" font-size="7" font-family="serif" fill="#f8d060" font-weight="bold">0\u00B0</text>
             `;
             break;
         case 'ballestilla':
@@ -178,10 +178,10 @@ function _crearSVGInstrumento(id) {
                     <circle cx="46" cy="59" r="5" fill="#c89010" stroke="#5c3a08" stroke-width="1.5"/>
                     <circle cx="46" cy="59" r="2.5" fill="#f8d060"/>
                 </g>
-                <circle cx="10" cy="10" r="5.5" fill="#f5c842" stroke="#5c3a08" stroke-width="1.8"/>
-                <circle cx="10" cy="10" r="2.5" fill="#3d1f08"/>
-                <rect x="8" y="2" width="4" height="8" rx="1.5" fill="#8b5e28" stroke="#5c3a08" stroke-width="1"/>
-                <text id="cuadrante-angulo" x="40" y="78" text-anchor="middle" font-size="8" font-family="serif" fill="#f8d060" font-weight="bold">0\u00B0</text>
+                <circle cx="10" cy="10" r="5.5" fill="#f5c842" stroke="#5c3a08" stroke-width="1.8" pointer-events="none"/>
+                <circle cx="10" cy="10" r="2.5" fill="#3d1f08" pointer-events="none"/>
+                <rect x="8" y="2" width="4" height="8" rx="1.5" fill="#8b5e28" stroke="#5c3a08" stroke-width="1" pointer-events="none"/>
+                <text id="cuadrante-angulo" x="40" y="76" text-anchor="middle" font-size="7" font-family="serif" fill="#f8d060" font-weight="bold">0\u00B0</text>
             `;
             break;
         default: return null;
@@ -393,9 +393,11 @@ function _iniciarCuadrante() {
             _estadoCuadrante.velocidad += 120 * dt;
             _estadoCuadrante.angulo += _estadoCuadrante.velocidad * dt * 3;
             _estadoCuadrante.velocidad *= Math.pow(0.97, dt * 60);
-            if (Math.abs(_estadoCuadrante.velocidad) < 0.5 && _estadoCuadrante.angulo > 5) {
+            if (Math.abs(_estadoCuadrante.velocidad) < 0.5) {
                 _estadoCuadrante.velocidad = 0;
-                _estadoCuadrante.soltado = false;
+                if (_estadoCuadrante.angulo <= 5) {
+                    _estadoCuadrante.soltado = false;
+                }
             }
         }
         _estadoCuadrante.angulo = Math.max(0, Math.min(80, _estadoCuadrante.angulo));

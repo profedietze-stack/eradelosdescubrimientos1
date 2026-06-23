@@ -92,6 +92,11 @@
   - **Cuadrante**: plomada con física de péndulo amortiguado (requestAnimationFrame), click para soltar
 - Botones se ocultan durante consecuencias, reaparecen en cada evento nuevo
 
+### 8. Bugfixes instrumentos interactivos
+- **Astrolabio**: texto de grados cortado — movido de y=82 a y=76 (dentro del viewBox), font-size reducido a 7
+- **Cuadrante**: plomada no se podía volver a lanzar — condición de reset cambiada para que `soltado = false` cuando el péndulo se detiene en ángulo bajo (≤5°)
+- **Cuadrante**: círculos decorativos del pivote (sin función) tenían `cursor: pointer` — se agregó `pointer-events="none"` para que no parezcan interactivos
+
 ## Convenciones
 - NO agregar comentarios en el código a menos que sea necesario
 - NO crear archivos nuevos a menos que sea necesario
