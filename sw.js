@@ -1,4 +1,4 @@
-const CACHE_NAME = 'colon-v@1782220973927';
+const CACHE_NAME = 'colon-v@1788602949082';
 const PRE_CACHE = [
   "./index.html",
   "./img/icon-512.svg",
