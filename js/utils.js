@@ -5,9 +5,26 @@ import { gameState } from './gameState.js';
 
 let _frasesQueue = [];
 
+/**
+ * Fisher-Yates.
+ *
+ * `[...arr].sort(() => Math.random() - 0.5)` es un comparador inconsistente:
+ * devuelve algo distinto cada vez que se le pregunta por el mismo par, y el
+ * resultado no reparte parejo — deja los elementos cerca de donde estaban. Los
+ * primeros del arreglo salen mucho mas seguido que los ultimos.
+ */
+function barajar(arr) {
+    const a = [...arr];
+    for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+}
+
 function siguienteFrase() {
     if (_frasesQueue.length === 0) {
-        _frasesQueue = [...frasesNavegantes].sort(() => Math.random() - 0.5);
+        _frasesQueue = barajar(frasesNavegantes);
     }
     return _frasesQueue.pop();
 }
@@ -153,4 +170,4 @@ function calcularAnguloFlota(idx, mapProjection) {
     return angle;
 }
 
-export { _frasesQueue, siguienteFrase, eventoARutaIdx, progresoARutaIdx, getRutaIdxForEventIndex, interpolarRuta, easeInOutCubic, detectarContextoEvento, _fmtTiempo, _labelRes, aplicarTooltips, nombreAleatorio, elegirNombre, getNombreJugador, mostrarFraseRandom, calcularAnguloFlota };
+export { barajar, _frasesQueue, siguienteFrase, eventoARutaIdx, progresoARutaIdx, getRutaIdxForEventIndex, interpolarRuta, easeInOutCubic, detectarContextoEvento, _fmtTiempo, _labelRes, aplicarTooltips, nombreAleatorio, elegirNombre, getNombreJugador, mostrarFraseRandom, calcularAnguloFlota };

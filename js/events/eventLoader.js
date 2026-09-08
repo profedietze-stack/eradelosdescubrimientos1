@@ -3,7 +3,7 @@ import { POOL_EVENTOS } from '../../data/poolEventos.js';
 import { GEO_FIJOS } from '../../data/rutas.js';
 import { DIFICULTAD_CONFIG } from '../../data/dificultad.js';
 import { gameState, createInitialState } from '../gameState.js';
-import { detectarContextoEvento, aplicarTooltips, siguienteFrase, _frasesQueue, mostrarFraseRandom, getNombreJugador } from '../utils.js';
+import { barajar, detectarContextoEvento, aplicarTooltips, siguienteFrase, _frasesQueue, mostrarFraseRandom, getNombreJugador } from '../utils.js';
 import { animarFlotaYScroll } from '../map/shipAnimation.js';
 import { actualizarVarsUI, mostrarDelta, actualizarAlertaPeligro, actualizarFaseViaje } from '../ui/statsUI.js';
 import { mostrarToast } from '../ui/toast.js';
@@ -34,7 +34,10 @@ function _estimarProgreso(index) {
 }
 
 function generarSecuenciaEventos() {
-    const poolShuffled = [...POOL_EVENTOS].sort(() => Math.random() - 0.5);
+    // `barajar` vive en utils.js. Con el comparador anterior, los eventos del
+    // principio del pool aparecian en casi todas las partidas y los del final
+    // casi nunca.
+    const poolShuffled = barajar(POOL_EVENTOS);
     const usados = new Set();
     const secuencia = [];
     let poolIdx = 0;
