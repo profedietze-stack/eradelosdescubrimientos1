@@ -339,7 +339,7 @@ function finalizarJuego() {
         tipo = 'victoria';
         titulo = '🌟 Llegada con gloria';
         subtitulo = '¡Descubriste un nuevo mundo!';
-        descripcion = '<p>Las tres carabelas regresaron a España cargadas de noticias y tesoros. Tu nombre quedará grabado en la historia.</p><p>La Corona celebró tu hazaña y fuiste nombrado Almirante del Mar Océano.</p>';
+        descripcion = '<p>Las naves regresaron a España cargadas de noticias y tesoros. Tu nombre quedará grabado en la historia.</p><p>La Corona celebró tu hazaña y fuiste nombrado Almirante del Mar Océano.</p>';
     } else if (m <= 30 || a <= 28) {
         tipo = 'derrota';
         titulo = '⚔️ Motín sangriento';
