@@ -170,4 +170,26 @@ function calcularAnguloFlota(idx, mapProjection) {
     return angle;
 }
 
-export { barajar, _frasesQueue, siguienteFrase, eventoARutaIdx, progresoARutaIdx, getRutaIdxForEventIndex, interpolarRuta, easeInOutCubic, detectarContextoEvento, _fmtTiempo, _labelRes, aplicarTooltips, nombreAleatorio, elegirNombre, getNombreJugador, mostrarFraseRandom, calcularAnguloFlota };
+/**
+ * Deja un indicador en un número usable: entero, entre 0 y 100.
+ *
+ * El `Math.max(0, Math.min(100, Math.round(v)))` que había **deja pasar el NaN**: redondear
+ * «ochenta» da NaN, y las dos comparaciones con NaN son falsas, así que sale intacto por el
+ * otro lado. De ahí en adelante NaN contagia cada turno.
+ *
+ * Y lo peor no es la barra rota. La derrota se comprueba con `moral <= 15`, y `NaN <= 15` es
+ * falso: con un solo indicador en NaN **la partida deja de poder perderse**. Un guardado
+ * editado a mano desde la consola —que en un aula pasa el segundo día— convertía el juego en
+ * uno donde nada de lo que hacés importa, sin un solo error en pantalla.
+ *
+ * @param {*} v      valor a saneаr
+ * @param {number} porDefecto  qué devolver cuando no hay número
+ * @returns {number} entero entre 0 y 100
+ */
+function clampIndicador(v, porDefecto = 0) {
+    const n = Number(v);
+    if (!Number.isFinite(n)) return porDefecto;
+    return Math.max(0, Math.min(100, Math.round(n)));
+}
+
+export { clampIndicador, barajar, _frasesQueue, siguienteFrase, eventoARutaIdx, progresoARutaIdx, getRutaIdxForEventIndex, interpolarRuta, easeInOutCubic, detectarContextoEvento, _fmtTiempo, _labelRes, aplicarTooltips, nombreAleatorio, elegirNombre, getNombreJugador, mostrarFraseRandom, calcularAnguloFlota };

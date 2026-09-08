@@ -3,7 +3,7 @@ import { POOL_EVENTOS } from '../../data/poolEventos.js';
 import { GEO_FIJOS } from '../../data/rutas.js';
 import { DIFICULTAD_CONFIG } from '../../data/dificultad.js';
 import { gameState, createInitialState } from '../gameState.js';
-import { barajar, detectarContextoEvento, aplicarTooltips, siguienteFrase, _frasesQueue, mostrarFraseRandom, getNombreJugador } from '../utils.js';
+import { clampIndicador, barajar, detectarContextoEvento, aplicarTooltips, siguienteFrase, _frasesQueue, mostrarFraseRandom, getNombreJugador } from '../utils.js';
 import { animarFlotaYScroll } from '../map/shipAnimation.js';
 import { actualizarVarsUI, mostrarDelta, actualizarAlertaPeligro, actualizarFaseViaje } from '../ui/statsUI.js';
 import { mostrarToast } from '../ui/toast.js';
@@ -272,11 +272,10 @@ function elegirOpcion(op, evId) {
         { id: 'autoridad',   delta: (deltaAutReal - decayAut),                    barId: 'bar-autoridad' },
     ];
     deltasVis.forEach(d => { if (d.delta !== 0) mostrarDelta(d.barId, d.delta); });
-    const clampVal = v => Math.max(0, Math.min(100, Math.round(v)));
-    gameState.moral       = clampVal(gameState.moral);
-    gameState.suministros = clampVal(gameState.suministros);
-    gameState.integridad  = clampVal(gameState.integridad);
-    gameState.autoridad   = clampVal(gameState.autoridad);
+    gameState.moral       = clampIndicador(gameState.moral);
+    gameState.suministros = clampIndicador(gameState.suministros);
+    gameState.integridad  = clampIndicador(gameState.integridad);
+    gameState.autoridad   = clampIndicador(gameState.autoridad);
     gameState.decisionsHistory.push({
         evento: evId,
         opcion: op.texto,
